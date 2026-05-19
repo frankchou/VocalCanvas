@@ -8,6 +8,8 @@ import Steps from '@/components/ui/Steps';
 import Slider from '@/components/ui/Slider';
 import GenderSelector from '@/components/ui/GenderSelector';
 import VoicePresets, { PRESETS } from '@/components/ui/VoicePresets';
+import ScenarioSelector, { SCENARIOS } from '@/components/app/ScenarioSelector';
+import BGMPicker, { BGM_TRACKS } from '@/components/app/BGMPicker';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -72,11 +74,32 @@ const PREVIEW_WAVE_HEIGHTS = [
 interface VoiceSetupScreenProps {
   state: AppState;
   setState: React.Dispatch<React.SetStateAction<AppState>>;
+  scenarioId: string;
+  setScenarioId: React.Dispatch<React.SetStateAction<string>>;
+  bgmTrack: string;
+  setBgmTrack: React.Dispatch<React.SetStateAction<string>>;
+  bgmVolume: number;
+  setBgmVolume: React.Dispatch<React.SetStateAction<number>>;
+  bgmExpanded: boolean;
+  setBgmExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   onNext: () => void;
   onBack: () => void;
 }
 
-function VoiceSetupScreen({ state, setState, onNext, onBack }: VoiceSetupScreenProps): React.JSX.Element {
+function VoiceSetupScreen({
+  state,
+  setState,
+  scenarioId,
+  setScenarioId,
+  bgmTrack,
+  setBgmTrack,
+  bgmVolume,
+  setBgmVolume,
+  bgmExpanded,
+  setBgmExpanded,
+  onNext,
+  onBack,
+}: VoiceSetupScreenProps): React.JSX.Element {
   const { lang } = useLang();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
   const { gender, age, pitch, timbre, preset } = state.voice;
@@ -92,9 +115,33 @@ function VoiceSetupScreen({ state, setState, onNext, onBack }: VoiceSetupScreenP
         <div>
           <h1>{t('挑一個聲音', 'Pick a voice')}</h1>
           <div className="sub">
-            {t('先選性別，再用拉桿微調 — 你也可以從預設聲音開始。', 'Choose a gender, then dial in the timbre — or start from a preset.')}
+            {lang === 'zh' ? '先選一個情境快速開始，或從零自訂。' : 'Pick a scenario to start fast, or build from scratch.'}
           </div>
         </div>
+      </div>
+
+      {/* 情境快選 */}
+      <div className="card" style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} className="section-label">
+          <span>✦</span>
+          <span>{lang === 'zh' ? '快速情境' : 'Quick Scenario'}</span>
+        </div>
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--fg-2)', marginTop: 4, marginBottom: 14 }}>
+          {lang === 'zh' ? '選一個情境，聲音、音色與背景音樂會自動配好。' : 'Pick a scenario and the voice, timbre, and BGM are set automatically.'}
+        </div>
+        <ScenarioSelector
+          value={scenarioId}
+          onChange={(s) => {
+            setScenarioId(s.id);
+            if (s.voice) {
+              setVoice({ gender: s.voice.gender, preset: s.voice.preset, age: s.voice.age, pitch: s.voice.pitch, timbre: s.voice.timbre });
+            }
+            if (s.bgmDefault !== undefined) setBgmTrack(s.bgmDefault);
+            if (s.bgmVolume !== undefined) setBgmVolume(s.bgmVolume);
+            setBgmExpanded(false);
+          }}
+          lang={lang}
+        />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
@@ -156,6 +203,20 @@ function VoiceSetupScreen({ state, setState, onNext, onBack }: VoiceSetupScreenP
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 背景音樂 */}
+      <div className="card" style={{ marginTop: 24, background: 'linear-gradient(180deg, #E6FBF4 0%, #FFFFFF 60%)', borderColor: '#7AE5C0' }}>
+        <BGMPicker
+          value={bgmTrack}
+          onChange={setBgmTrack}
+          volume={bgmVolume}
+          onVolumeChange={setBgmVolume}
+          recommended={SCENARIOS.find((s) => s.id === scenarioId)?.bgmRecommended}
+          lang={lang}
+          expanded={bgmExpanded}
+          onToggleExpanded={() => setBgmExpanded((v) => !v)}
+        />
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
@@ -359,11 +420,13 @@ function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScr
 // ---- Step 2: Preview ----
 interface PreviewScreenProps {
   state: AppState;
+  bgmTrack: string;
+  bgmVolume: number;
   onBack: () => void;
   onDone: () => void;
 }
 
-function PreviewScreen({ state, onBack, onDone }: PreviewScreenProps): React.JSX.Element {
+function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewScreenProps): React.JSX.Element {
   const { lang } = useLang();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
   const [playing, setPlaying] = useState(true);
@@ -469,6 +532,20 @@ function PreviewScreen({ state, onBack, onDone }: PreviewScreenProps): React.JSX
             ))}
           </div>
         </div>
+
+        {bgmTrack !== 'none' && (
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className="chip coral">
+              {lang === 'zh' ? '背景音樂' : 'BGM'}
+            </span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 13 }}>
+              {BGM_TRACKS.find((t) => t.id === bgmTrack)?.[lang === 'zh' ? 'zh' : 'en']}
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-2)' }}>
+              {bgmVolume}%
+            </span>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginTop: 24 }}>
@@ -539,6 +616,10 @@ export default function NewCanvasPage(): React.JSX.Element {
   const router = useRouter();
   const [step, setStep] = useState<Step>(0);
   const [appState, setAppState] = useState<AppState>(INITIAL_STATE);
+  const [scenarioId, setScenarioId] = useState<string>('custom');
+  const [bgmTrack, setBgmTrack] = useState<string>('none');
+  const [bgmVolume, setBgmVolume] = useState<number>(0);
+  const [bgmExpanded, setBgmExpanded] = useState<boolean>(false);
 
   const goNext = (): void => setStep((s) => Math.min(2, s + 1) as Step);
   const goBack = (): void => setStep((s) => Math.max(0, s - 1) as Step);
@@ -548,6 +629,14 @@ export default function NewCanvasPage(): React.JSX.Element {
       <VoiceSetupScreen
         state={appState}
         setState={setAppState}
+        scenarioId={scenarioId}
+        setScenarioId={setScenarioId}
+        bgmTrack={bgmTrack}
+        setBgmTrack={setBgmTrack}
+        bgmVolume={bgmVolume}
+        setBgmVolume={setBgmVolume}
+        bgmExpanded={bgmExpanded}
+        setBgmExpanded={setBgmExpanded}
         onNext={goNext}
         onBack={() => router.push('/library')}
       />
@@ -568,6 +657,8 @@ export default function NewCanvasPage(): React.JSX.Element {
   return (
     <PreviewScreen
       state={appState}
+      bgmTrack={bgmTrack}
+      bgmVolume={bgmVolume}
       onBack={goBack}
       onDone={() => router.push('/library')}
     />

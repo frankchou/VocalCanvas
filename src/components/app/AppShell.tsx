@@ -111,13 +111,16 @@ function Sidebar({ mobileOpen, onCloseMobile, onToggleCollapse }: SidebarProps):
           <div className="avatar">{user?.avatar ?? '?'}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name ?? ''}</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>{user?.plan ?? ''}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>
+              {user ? `${user.plan} · ${user.usage.total - user.usage.rendered} mins left` : ''}
+            </div>
           </div>
         </button>
         <button
           type="button"
           onClick={handleLogout}
           title="登出 / Log out"
+          className="logout-btn"
           style={{ background: 'transparent', border: 0, padding: '4px 6px', cursor: 'pointer', color: 'var(--fg-2)', fontFamily: 'var(--font-body)', fontSize: 11, whiteSpace: 'nowrap', flexShrink: 0 }}
         >
           登出

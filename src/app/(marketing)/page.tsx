@@ -10,6 +10,7 @@ const COPY = {
   nav: {
     links: {
       features: { zh: '功能', en: 'Features' },
+      scenarios: { zh: '情境模式', en: 'Scenarios' },
       how: { zh: '如何運作', en: 'How It Works' },
       voices: { zh: '聲音庫', en: 'Voices' },
       pricing: { zh: '方案', en: 'Pricing' },
@@ -20,13 +21,13 @@ const COPY = {
     trial: { zh: '免費試用', en: 'Free Trial' },
   },
   hero: {
-    eyebrow: { zh: 'AI 語音朗讀 · 多語言', en: 'AI Text-to-Speech · Multilingual' },
+    eyebrow: { zh: 'AI 語音朗讀 · 情境模式 · 多語言', en: 'AI Voice · Scenarios · Multilingual' },
     h1Line1: { zh: '讓你的文字', en: 'Give Your Words' },
     h1Sunset: { zh: '擁有聲音', en: 'a Voice' },
     h1End: { zh: '。', en: '.' },
     sub: {
-      zh: '挑一個聲音，用拉桿微調年齡、音高、音色 — 在文字裡插入停頓，AI 就能朗讀出像對話一樣自然的音檔。中、英、日多語言支援。',
-      en: 'Pick a voice, fine-tune age, pitch, and tone with sliders — insert pauses anywhere in your text, and AI reads it naturally. Supports Chinese, English, and Japanese.',
+      zh: '挑一個情境 — 冥想、睡前故事、Podcast 開場 — AI 自動配好聲音與背景音樂。也可以從零自訂，插入停頓、微調音色，產出像對話一樣自然的音檔。',
+      en: 'Pick a scenario — meditation, bedtime story, podcast intro — and AI sets the voice and background music. Or start from scratch: insert pauses, tune the timbre, and produce natural-sounding audio.',
     },
     ctaStart: { zh: '開始免費試用', en: 'Start Free Trial' },
     ctaDemo: { zh: '看示範', en: 'Watch Demo' },
@@ -139,6 +140,7 @@ const COPY = {
     colProduct: { zh: '產品', en: 'Product' },
     colProductLinks: {
       features: { zh: '功能介紹', en: 'Features' },
+      scenarios: { zh: '情境模式', en: 'Scenarios' },
       voices: { zh: '聲音庫', en: 'Voices' },
       pricing: { zh: '方案', en: 'Pricing' },
       changelog: { zh: '更新紀錄', en: 'Changelog' },
@@ -204,6 +206,7 @@ export default function MarketingPage(): React.JSX.Element {
         </a>
         <div className="nav-links">
           <a href="#features">{t(COPY.nav.links.features, lang)}</a>
+          <a href="#scenarios">{t(COPY.nav.links.scenarios, lang)}</a>
           <a href="#how">{t(COPY.nav.links.how, lang)}</a>
           <a href="#voices">{t(COPY.nav.links.voices, lang)}</a>
           <a href="#pricing">{t(COPY.nav.links.pricing, lang)}</a>
@@ -395,6 +398,167 @@ export default function MarketingPage(): React.JSX.Element {
               }
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* ============ SCENARIOS ============ */}
+      <section id="scenarios" style={{ padding: '96px 48px', maxWidth: 1280, margin: '0 auto' }}>
+        <p className="eyebrow">{lang === 'zh' ? '情境模式' : 'Scenarios'}</p>
+        <h2 className="section-title">
+          {lang === 'zh'
+            ? <>不只是配音 — 是有<span className="sunset">情境</span>的聲音作品。</>
+            : <>Not just audio — a voice with <span className="sunset">context</span>.</>}
+        </h2>
+        <p className="section-sub">
+          {lang === 'zh'
+            ? '一鍵選擇情境，VocalCanvas 自動配好聲音、音色、與背景音樂。產出時混音為單一音檔，下載即用。'
+            : 'Choose a scenario and VocalCanvas sets the voice, timbre, and background music automatically. Renders as a single mixed audio file, ready to download.'}
+        </p>
+
+        <div className="scenarios-grid">
+          {/* 冥想 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #7AE5C0 0%, #6E52F2 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="5" r="2.2" />
+                <path d="M12 7.5v3.5" />
+                <path d="M7.5 19c1.5-4 3-6 4.5-6s3 2 4.5 6" />
+                <path d="M4.5 19h15" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? '冥想' : 'Meditation'}</h4>
+            <div className="sub-en">Meditation · 柔和 · 緩慢 · 低沉</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '引導冥想、瑜珈靜心、正念呼吸 — 配上海浪、森林或頌缽聲，讓人沉浸下來。'
+                : 'Guided meditation, yoga stillness, mindful breathing — paired with ocean waves, forest sounds or singing bowls.'}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">🌊 {lang === 'zh' ? '海浪' : 'Ocean'}</span>
+              <span className="bgm-chip">🌲 {lang === 'zh' ? '森林' : 'Forest'}</span>
+              <span className="bgm-chip">◉ {lang === 'zh' ? '頌缽' : 'Singing Bowl'}</span>
+            </div>
+          </div>
+
+          {/* 睡前故事 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #6E52F2 0%, #FF85A8 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? '睡前故事' : 'Bedtime Story'}</h4>
+            <div className="sub-en">Bedtime · 溫暖 · 輕柔</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '親子睡前故事、安眠引導、ASMR 朗讀 — 雨聲與輕鋼琴讓孩子（或自己）安心入眠。'
+                : "Bedtime stories, sleep guidance, ASMR reading — rain and soft piano help children (or yourself) drift off peacefully."}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">💧 {lang === 'zh' ? '雨聲' : 'Rain'}</span>
+              <span className="bgm-chip">♪ {lang === 'zh' ? '輕鋼琴' : 'Soft Piano'}</span>
+              <span className="bgm-chip">🌲 {lang === 'zh' ? '森林' : 'Forest'}</span>
+            </div>
+          </div>
+
+          {/* 正念肯定語 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #FFC785 0%, #F25C8A 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3l1.5 5 5 1.5-5 1.5L12 16l-1.5-5-5-1.5 5-1.5L12 3z" />
+                <path d="M19 14l.7 2.3 2.3.7-2.3.7L19 20l-.7-2.3L16 17l2.3-.7z" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? '正念肯定語' : 'Affirmations'}</h4>
+            <div className="sub-en">Affirmation · 柔和 · 堅定</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '每日自我肯定、療癒練習、靈性內容 — 頌缽與環境音帶來凝聚的能量場。'
+                : 'Daily affirmations, healing practice, spiritual content — singing bowls and ambient sounds create a grounding energy field.'}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">◉ {lang === 'zh' ? '頌缽' : 'Singing Bowl'}</span>
+              <span className="bgm-chip">≈ {lang === 'zh' ? '環境音' : 'Ambient'}</span>
+              <span className="bgm-chip">♪ {lang === 'zh' ? '輕鋼琴' : 'Soft Piano'}</span>
+            </div>
+          </div>
+
+          {/* Podcast 開場 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #FF5A3C 0%, #FFA94D 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? 'Podcast 開場' : 'Podcast Intro'}</h4>
+            <div className="sub-en">Podcast intro · 清亮 · 動感</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '節目片頭、廣告插入、結尾 outro — 動感節拍或電影感配樂，讓你的節目專業感倍增。'
+                : 'Episode intros, ad reads, outros — dynamic beats or cinematic music that makes your show sound professional.'}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">♬ {lang === 'zh' ? '動感節拍' : 'Upbeat'}</span>
+              <span className="bgm-chip">▲ {lang === 'zh' ? '電影感' : 'Cinematic'}</span>
+              <span className="bgm-chip">○ {lang === 'zh' ? '純朗讀' : 'Voice Only'}</span>
+            </div>
+          </div>
+
+          {/* 廣告 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #F25C8A 0%, #FF5A3C 50%, #FFA94D 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 11 22 2 22 22 3 13 3 11" />
+                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? '廣告' : 'Advertisement'}</h4>
+            <div className="sub-en">Advertisement · 自信 · 有節奏</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '社群短影音配音、品牌廣告、活動宣傳 — 自動混合人聲與背景音，無需後製。'
+                : 'Social video voiceovers, brand ads, event promos — auto-mixed voice and music, no post-production needed.'}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">♬ {lang === 'zh' ? '動感節拍' : 'Upbeat'}</span>
+              <span className="bgm-chip">▲ {lang === 'zh' ? '電影感' : 'Cinematic'}</span>
+            </div>
+          </div>
+
+          {/* 有聲書 */}
+          <div className="scenario-card" style={{ background: 'linear-gradient(135deg, #2A271F 0%, #6C6757 100%)' }}>
+            <div className="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+            </div>
+            <h4>{lang === 'zh' ? '有聲書' : 'Audiobook'}</h4>
+            <div className="sub-en">Audiobook · 沉穩 · 清晰</div>
+            <p className="desc">
+              {lang === 'zh'
+                ? '小說朗讀、有聲書試讀、長篇文章 — 純人聲或搭輕鋼琴，專注於文字本身。'
+                : 'Novel readings, audiobook previews, long-form articles — voice only or with soft piano, focused on the words.'}
+            </p>
+            <div className="bgm-row">
+              <span className="bgm-chip">○ {lang === 'zh' ? '純朗讀' : 'Voice Only'}</span>
+              <span className="bgm-chip">♪ {lang === 'zh' ? '輕鋼琴' : 'Soft Piano'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--fg-2)', marginBottom: 20 }}>
+            {lang === 'zh'
+              ? '或選「自訂」從零打造 — 9 款 BGM 任你混搭。'
+              : 'Or choose "Custom" to build from scratch — mix and match from 9 BGM tracks.'}
+          </p>
+          <a href="/new" className="btn btn-render">
+            {lang === 'zh' ? '✦ 免費試用情境模式' : '✦ Try Scenarios Free'}
+          </a>
         </div>
       </section>
 
@@ -695,6 +859,7 @@ export default function MarketingPage(): React.JSX.Element {
           <div className="footer-col">
             <h5>{t(COPY.footer.colProduct, lang)}</h5>
             <a href="#features">{t(COPY.footer.colProductLinks.features, lang)}</a>
+            <a href="#scenarios">{t(COPY.footer.colProductLinks.scenarios, lang)}</a>
             <a href="#voices">{t(COPY.footer.colProductLinks.voices, lang)}</a>
             <a href="#pricing">{t(COPY.footer.colProductLinks.pricing, lang)}</a>
             <a href="#">{t(COPY.footer.colProductLinks.changelog, lang)}</a>

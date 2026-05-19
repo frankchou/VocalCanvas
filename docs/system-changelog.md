@@ -4,6 +4,37 @@
 
 ## 2026-05-19
 
+### 16:30 — v0.4.0 新增：情境快選（Scenarios）+ 背景音樂（BGM）
+
+- **更新內容**：
+  為 New Canvas Wizard 的 Voice Setup 步驟加入兩大全新功能模組，讓使用者能一鍵套用預設情境設定，並為語音加上背景音樂。
+
+  **情境模式（ScenarioSelector）**
+  新增 `src/components/app/ScenarioSelector.tsx`，提供 7 張情境卡：自訂、冥想、睡前故事、正念肯定語、Podcast 開場、廣告、有聲書。每張卡片帶有漸層背景色（例如冥想為青綠到紫、有聲書為深墨色）、行內 SVG 圖標（ScIcon primitive）與中英雙語描述。使用者點擊任一情境卡後，系統自動將 `voice`（gender / preset / age / pitch / timbre）與 BGM（bgmDefault / bgmVolume）一次套用到 Wizard 的 AppState，省去手動調整每項參數的步驟。自訂（custom）情境無聲音預設，讓使用者從空白狀態開始。
+
+  **背景音樂（BGMPicker + BGMVolumeSlider）**
+  新增 `src/components/app/BGMPicker.tsx`，提供 9 首 BGM 曲目供選擇：純朗讀（無音樂）、海浪、森林、頌缽、雨聲、輕鋼琴、環境音、動感節拍、電影感。每首曲目以圖卡方式呈現，顯示圖標、名稱、描述與循環時長。選擇情境後，BGMPicker 預設僅顯示該情境推薦的曲目子集，使用者可點擊「看全部」展開完整清單。選取非「純朗讀」的曲目後，下方出現 BGMVolumeSlider 音量拉桿，支援 setPointerCapture 拖曳（見機制文件）。
+
+  **Preview Step 顯示 BGM 資訊**
+  PreviewScreen（Step 2）在播放器卡片下方新增 BGM 資訊列，顯示目前選用的背景音樂名稱與音量百分比；若選擇「純朗讀」則不顯示此列。
+
+  **行銷頁 Scenarios 區塊**
+  廣告頁（`src/app/(marketing)/page.tsx`）新增 Scenarios section，展示 6 張漸層情境卡，與 App 內的卡片設計一致，讓訪客在登入前就能預覽各情境的視覺風格。Nav、Hero、Footer 同步微調。
+
+  **樣式新增與 Bug 修正**
+  `marketing.css` 新增 `.scenarios-grid` / `.scenario-card` 等行銷頁情境卡樣式及 RWD 斷點（1024px / 768px）。
+  `app.css` 新增 `.scenario-strip` 基礎樣式與 RWD 斷點（1200 / 768 / 480px），BGM volume slider RWD（600px）。
+  同批修正 3 個 blocking bug：mobile sidebar specificity 問題、collapsed profile-row 顯示錯誤、以及相關 CSS 特異性衝突。
+
+  **TypeScript 建置狀態**：0 錯誤。
+
+- **更新檔案**：
+  `src/components/app/ScenarioSelector.tsx`、`src/components/app/BGMPicker.tsx`、`src/app/(app)/new/page.tsx`、`src/app/(marketing)/page.tsx`、`src/styles/marketing.css`、`src/styles/app.css`
+
+- **Git 紀錄**：`（待 commit）`
+
+---
+
 ### 15:00 — v0.3.1 新增：PWA Manifest 與 Favicon 支援
 
 - **更新內容**：

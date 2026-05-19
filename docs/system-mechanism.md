@@ -1,6 +1,6 @@
 # VocalCanvas 系統機制
 
-> 本文件描述各核心功能的實際運作細節（截至 2026-05-19，v0.3.1），與程式碼保持同步。
+> 本文件描述各核心功能的實際運作細節（截至 2026-05-19，v0.4.0），與程式碼保持同步。
 
 ---
 
@@ -507,3 +507,68 @@ AppShell
 
 - Script Editor「產出音檔」按鈕 → `setRendering(true)` → 顯示 overlay。
 - 模擬處理結束（setTimeout 2400ms）→ `setRendering(false)` → 隱藏 overlay，進入 Step 2 Preview。
+
+---
+
+## 16. 情境模式機制（Scenarios + BGM）
+
+**檔案：** `src/components/app/ScenarioSelector.tsx`、`src/components/app/BGMPicker.tsx`、`src/app/(app)/new/page.tsx`
+
+### 16.1 情境快選：自動套用聲音設定
+
+`ScenarioSelector` 顯示 7 張情境卡，每張卡片在 `SCENARIOS` 陣列中對應一個 `Scenario` 物件，其中有一個可選的 `voice` 欄位：
+
+```typescript
+voice?: { gender: 'male' | 'female'; preset: string; age: number; pitch: number; timbre: number }
+```
+
+使用者點擊情境卡時，`VoiceSetupScreen` 的 `onChange` handler 執行以下動作：
+
+1. 更新 `scenarioId` state 為選取情境的 id。
+2. 若 `s.voice` 存在，以 `setState` 一次性覆寫 `appState.voice` 的五個欄位（gender、preset、age、pitch、timbre），讓 GenderSelector、三個 Slider 及 VoicePresets 立即跳到對應數值，視覺上同步更新。
+3. 若 `s.bgmDefault` 存在，呼叫 `setBgmTrack(s.bgmDefault)` 預選建議 BGM 曲目。
+4. 若 `s.bgmVolume` 存在，呼叫 `setBgmVolume(s.bgmVolume)` 設定建議音量。
+5. 「自訂」情境（id: `'custom'`）沒有 `voice` 欄位，因此不覆寫任何聲音設定，讓使用者從目前狀態繼續調整。
+
+選取情境後若使用者手動調整拉桿或更換性別，`preset` 會被設回 `null`（既有的 Slider / VoicePresets 邏輯），情境卡仍維持選取高亮，表示情境是使用者的出發點，不是鎖定設定。
+
+### 16.2 BGMPicker 推薦篩選機制
+
+`BGMPicker` 接受 `recommended?: string[]` prop（由 `SCENARIOS.find(s => s.id === scenarioId)?.bgmRecommended` 傳入）：
+
+- `recommended` 有值時，預設僅顯示 `BGM_TRACKS.filter(b => recommended.includes(b.id))` 的子集，並在每張卡片右下角顯示「推薦」標籤（`chip coral`）。
+- 使用者點擊「看全部」按鈕後，`bgmExpanded` state 切換為 `true`，改顯示完整的 9 首曲目。點擊「只看推薦」可收回。
+- 選擇「自訂」情境時 `recommended` 為 `undefined`，BGMPicker 直接顯示全部 9 首，不顯示切換按鈕。
+
+### 16.3 BGMVolumeSlider 的 setPointerCapture 拖曳原理
+
+**檔案：** `src/components/app/BGMPicker.tsx`（`BGMVolumeSlider` 函式）
+
+`BGMVolumeSlider` 使用 `setPointerCapture` API 實作拖曳，與 `Slider.tsx` 的 window listener 方式不同：
+
+1. `onPointerDown` 觸發時，呼叫 `ref.current?.setPointerCapture(e.pointerId)`，將後續所有來自該 pointerId 的 `pointermove` / `pointerup` 事件「捕捉」到此元素，即使滑鼠移出元素外也能持續收到事件。
+2. `onPointerMove` 收到事件後，以 `isDragging.current`（useRef，非 state，不觸發 re-render）判斷是否正在拖曳，避免未按下時誤觸計算。
+3. `onPointerUp` 將 `isDragging.current` 設回 `false`，結束拖曳。
+4. 計算邏輯：每次移動取 `ref.current.getBoundingClientRect()` 已在 `onPointerDown` 前快取在 `calcValue` 閉包中，即時以 `(clientX - rect.left) / rect.width * 100` 計算百分比，夾在 0–100 並四捨五入後呼叫 `onChange`。
+
+`setPointerCapture` 相比 window listener 的優點：元件 unmount 後 pointer capture 自動解除，無需手動 cleanup，不會有記憶體洩漏的風險。
+
+### 16.4 BGM 資訊傳遞到 Preview Step
+
+`bgmTrack` 與 `bgmVolume` 是 `NewCanvasPage` 的 local state，以 props 直接傳入 `PreviewScreen`：
+
+```
+NewCanvasPage
+├── VoiceSetupScreen (Step 0) ← bgmTrack / bgmVolume 讀寫
+└── PreviewScreen (Step 2)   ← bgmTrack / bgmVolume 唯讀
+```
+
+`PreviewScreen` 在播放器卡片下方以條件渲染顯示 BGM 資訊列：
+
+```typescript
+{bgmTrack !== 'none' && (
+  // 顯示標籤 + BGM_TRACKS.find(t => t.id === bgmTrack)?.zh/en + bgmVolume%
+)}
+```
+
+曲目名稱從 `BGM_TRACKS` 陣列以 id 查找，語言跟隨 `useLang().lang`，音量數值以 `%` 格式顯示。

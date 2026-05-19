@@ -1,6 +1,6 @@
 # VocalCanvas 系統架構
 
-> 本文件描述系統現況（截至 2026-05-19，v0.3.1），與程式碼保持同步。
+> 本文件描述系統現況（截至 2026-05-19，v0.4.0），與程式碼保持同步。
 
 ---
 
@@ -101,6 +101,7 @@ RootLayout (src/app/layout.tsx)
         │       ├── Nav（sticky header，scroll 偵測）
         │       ├── Hero（wave 動畫、stage card）
         │       ├── Features（3 格卡片）
+        │       ├── Scenarios（6 張漸層情境卡）
         │       ├── How It Works（4 步驟卡片）
         │       ├── Voices Teaser（4 個 voice-card）
         │       ├── Use Cases（2×2 格）
@@ -130,9 +131,14 @@ RootLayout (src/app/layout.tsx)
                     │   └── lib-list（來自 AuthContext.user，動態顯示；empty 帳號顯示空態）
                     ├── NewCanvasPage (src/app/(app)/new/page.tsx)
                     │   ├── VoiceSetupScreen (Step 0)
+                    │   │   ├── ScenarioSelector (src/components/app/ScenarioSelector.tsx)
+                    │   │   │   └── 7 張情境卡（自訂/冥想/睡前故事/肯定語/Podcast/廣告/有聲書）
                     │   │   ├── GenderSelector (src/components/ui/GenderSelector.tsx)
                     │   │   ├── Slider × 3 (src/components/ui/Slider.tsx)
-                    │   │   └── VoicePresets (src/components/ui/VoicePresets.tsx)
+                    │   │   ├── VoicePresets (src/components/ui/VoicePresets.tsx)
+                    │   │   └── BGMPicker (src/components/app/BGMPicker.tsx)
+                    │   │       ├── 9 首 BGM 曲目選擇格
+                    │   │       └── BGMVolumeSlider（選非「純朗讀」時顯示）
                     │   ├── ScriptEditorScreen (Step 1)
                     │   │   ├── script-area（contentEditable text nodes + delay tags）
                     │   │   └── rendering-overlay（pulseWave 動畫）
@@ -140,6 +146,7 @@ RootLayout (src/app/layout.tsx)
                     │       ├── studio-stage（波形播放）
                     │       ├── Playback controls（SkipBack / Play / SkipForward）
                     │       ├── Speed pills（0.5× 到 2×）
+                    │       ├── BGM 資訊列（曲目名稱 + 音量，純朗讀時隱藏）
                     │       └── Action cards（Favorite / Save / Download）
                     ├── VoicesPage (src/app/(app)/voices/page.tsx)
                     │   └── 6 個聲音卡片（gender filter）
@@ -175,6 +182,8 @@ RootLayout (src/app/layout.tsx)
 |------|------|
 | `AppShell.tsx` | Sidebar + TopBar + LangProvider 整合容器 |
 | `OnboardingModal.tsx` | 4 步驟全屏 onboarding modal，接受 `{ onClose: () => void }` prop |
+| `ScenarioSelector.tsx` | 7 個情境快選卡片，選取後自動套用聲音設定與 BGM 預設值；含 ScIcon primitive、SCENARIOS 資料陣列、Scenario 型別定義 |
+| `BGMPicker.tsx` | 9 首 BGM 曲目選擇器，含推薦篩選/全部切換、BGMVolumeSlider 音量拉桿（setPointerCapture 拖曳）；含 BGM_TRACKS 資料陣列、BgmTrack 型別定義 |
 
 ---
 
@@ -209,7 +218,7 @@ RootLayout (src/app/layout.tsx)
 
 ### 5.2 New Canvas Wizard 狀態
 
-`NewCanvasPage` 持有一個 `AppState` 物件（local state），在三個步驟之間共享：
+`NewCanvasPage` 持有 `AppState` 物件（local state）及 BGM / Scenario 相關獨立狀態，在三個步驟之間共享：
 
 ```typescript
 interface AppState {
@@ -223,9 +232,15 @@ interface AppState {
   script: ScriptNode[];  // text | delay 節點陣列
   rendering: boolean;
 }
+
+// BGM / Scenario 相關 (NewCanvasPage local state，以 props 傳入 VoiceSetupScreen / PreviewScreen)
+// scenarioId: string          — 目前選取的情境 id（'custom' | 'meditation' | ...）
+// bgmTrack: string            — 目前選取的 BGM id（'none' | 'ocean' | ...）
+// bgmVolume: number           — BGM 音量百分比（0–100）
+// bgmExpanded: boolean        — BGMPicker 是否展開全部曲目
 ```
 
-各步驟 Screen 元件接受 `state` 與 `setState` props，共享同一份狀態。
+各步驟 Screen 元件接受 `state` 與 `setState` props，共享同一份狀態。BGM / Scenario 狀態由 `NewCanvasPage` 以個別 props 傳遞給 `VoiceSetupScreen`（讀寫）及 `PreviewScreen`（唯讀顯示）。
 
 ### 5.3 其他 Local States
 
@@ -236,6 +251,7 @@ interface AppState {
 | `PreviewScreen` | `playing`, `progress`, `speed`, `fav`, `saved` | 播放器狀態 |
 | `AppShellInner` | `collapsed`, `mobileOpen` | Sidebar 展開/收合、mobile drawer 開關 |
 | `MarketingPage` | `lang`, `scrolled` | 廣告頁語言與 Nav scroll 狀態 |
+| `NewCanvasPage` | `scenarioId`, `bgmTrack`, `bgmVolume`, `bgmExpanded` | 情境快選、BGM 曲目選擇、音量、是否展開全部曲目 |
 | `SettingsPage` | `showOnboarding` | 控制 OnboardingModal 顯示 |
 | `ForgotPage` | `formState`, `resent` | 忘記密碼表單 / success 狀態切換，重新寄送狀態 |
 
@@ -292,7 +308,9 @@ src/styles/
 │   ├── components/
 │   │   ├── app/
 │   │   │   ├── AppShell.tsx           Sidebar + TopBar 整合元件
-│   │   │   └── OnboardingModal.tsx    4 步驟全屏 Onboarding Modal
+│   │   │   ├── OnboardingModal.tsx    4 步驟全屏 Onboarding Modal
+│   │   │   ├── ScenarioSelector.tsx   情境快選元件（7 張卡片）
+│   │   │   └── BGMPicker.tsx          BGM 選擇器 + 音量拉桿
 │   │   ├── AuthProviderWrapper.tsx    Client 薄殼，讓 Server Layout 能套上 AuthProvider
 │   │   ├── marketing/
 │   │   │   └── MarketingNav.tsx       (備用，目前廣告頁 Nav 內嵌於 page.tsx)
