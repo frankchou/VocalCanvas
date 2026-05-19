@@ -43,4 +43,69 @@
 
 ---
 
+## 💬 LINE 登入 / 註冊（LINE Login）
+
+**構想來源：** 2026-05-19 產品規劃會議  
+**優先級：** 未排入（需自建 custom token 整合，Firebase 不原生支援）  
+**狀態：** UI 已完成並隱藏，待啟用
+
+### 背景
+
+Login 頁與 Signup 頁已有 LINE Login 按鈕，但 Firebase Auth 不原生支援 LINE OAuth。需要自建 API route 接 LINE Login，取得 LINE 用戶 token 後換成 Firebase custom token，複雜度較高。目前暫緩，按鈕以 JSX 註解隱藏。
+
+### 啟用前置作業
+
+1. 到 LINE Developers Console 建立 LINE Login Channel
+2. 取得 Channel ID + Channel Secret
+3. 設定 Callback URL（`https://你的網域/api/auth/line/callback`）
+4. `.env.local` 填入 `LINE_CHANNEL_ID` 和 `LINE_CHANNEL_SECRET`
+
+### 技術方向
+
+- 自建 `/api/auth/line` route：導向 LINE 授權頁
+- 自建 `/api/auth/line/callback` route：收到 LINE code → 換 access token → 取得用戶資料 → Firebase Admin SDK `createCustomToken` → 回傳給前端
+- 前端收到 custom token → `signInWithCustomToken`
+- Account 頁連結/解除：`linkWithCredential`
+
+### 啟用步驟
+
+1. 完成上述前置作業
+2. 實作 `/api/auth/line` 和 `/api/auth/line/callback` API routes
+3. 取消 login/signup 頁面的 LINE 按鈕 JSX 註解
+4. Account 頁 LINE 連結列從假資料改為真實狀態
+
+---
+
+## 🍎 Apple 登入 / 註冊（Apple Sign In）
+
+**構想來源：** 2026-05-19 產品規劃會議  
+**優先級：** 未排入（需付費 Apple Developer 帳號 $99/年）  
+**狀態：** UI 已完成並隱藏，待啟用
+
+### 背景
+
+Login 頁與 Signup 頁已有 Apple Sign In 按鈕（Google / LINE / Apple 三個 OAuth），但 Apple 要求開發者擁有付費 Apple Developer Program 帳號才能使用 Sign In with Apple 服務。目前暫緩，按鈕以 JSX 註解隱藏。
+
+### 啟用前置作業
+
+1. 申請 Apple Developer Program（$99 USD/年）
+2. 建立 App ID，啟用 Sign In with Apple capability
+3. 建立 Service ID，設定 Return URL
+4. 下載 private key（`.p8` 檔）
+5. Firebase Console → Authentication → Sign-in method → 啟用 Apple
+
+### 技術方向
+
+- Firebase Auth `OAuthProvider('apple.com')` + `signInWithPopup`
+- Account 頁連結/解除：`linkWithPopup(appleProvider)` / `unlink`
+- Account 頁需補顯示 Apple 連結狀態（目前只有 Google / LINE）
+
+### 啟用步驟
+
+1. 完成上述前置作業
+2. 取消 login/signup 頁面的 Apple 按鈕 JSX 註解
+3. Account 頁新增 Apple 連結列
+
+---
+
 *新增構想請依相同格式補在此文件。*
