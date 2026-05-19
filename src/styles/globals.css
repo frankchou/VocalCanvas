@@ -1,0 +1,66 @@
+/* 載入設計 Token（色彩、字型、間距、陰影、圓角等） */
+@import './design-tokens.css';
+
+/* ============================================================
+   覆寫字型 CSS variable 以使用 next/font 注入的本地字型
+   （next/font 會在 html 元素上注入 --font-sora 等 variable）
+   ============================================================ */
+:root {
+  --font-display: var(--font-sora), 'Noto Sans TC', system-ui, sans-serif;
+  --font-body:    var(--font-manrope), 'Noto Sans TC', system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-zh:      var(--font-noto-sans-tc), 'Manrope', system-ui, sans-serif;
+}
+
+/* ============================================================
+   CSS Reset — 精簡版，保留 design token 的字型預設
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  line-height: var(--lh-base);
+  color: var(--fg-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}

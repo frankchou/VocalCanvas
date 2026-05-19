@@ -1,0 +1,180 @@
+# VocalCanvas Changelog
+
+---
+
+## 2026-05-19
+
+### 15:00 — v0.3.1 新增：PWA Manifest 與 Favicon 支援
+
+- **更新內容**：
+  為 VocalCanvas 加入完整的 PWA（Progressive Web App）安裝支援與跨平台 Favicon 設定，讓使用者可以將網站加入手機主畫面並以獨立應用程式視窗執行。
+
+  **Web App Manifest（`public/manifest.json`）**
+  新增 Web App Manifest 設定檔，宣告應用名稱（VocalCanvas）、主題色（#FF5A3C，對應品牌 Coral 色）、啟動背景色（#FFFCF7，對應 Cream 底色）、顯示模式（standalone 獨立視窗，不顯示瀏覽器列）及 SVG 格式的安裝圖示，瀏覽器讀取此檔後即可提示使用者安裝至桌面或主畫面。
+
+  **PWA 圖示（`public/icon.svg`）**
+  新增 `public/icon.svg`，內容與既有的 `public/assets/logo-mark.svg` 相同。SVG 格式可自由縮放，無需準備多種解析度的點陣圖，統一作為 PWA 安裝圖示、Apple Touch Icon 及標準 favicon 的來源。
+
+  **Root Layout Metadata 擴充（`src/app/layout.tsx`）**
+  透過 Next.js `metadata` 靜態匯出物件新增四項設定：
+  - `manifest: '/manifest.json'` — 注入 `<link rel="manifest">` 讓瀏覽器識別 PWA。
+  - `icons.icon: '/icon.svg'` — 標準 favicon，顯示於瀏覽器分頁標題列。
+  - `icons.apple: '/icon.svg'` — Apple Touch Icon，iOS 儲存捷徑至主畫面時使用。
+  - `appleWebApp.capable: true` — 注入 `mobile-web-app-capable` meta，告知 iOS Safari 支援 Web App 模式。
+
+- **更新檔案**：
+  `public/manifest.json`、`public/icon.svg`、`src/app/layout.tsx`
+
+- **Git 紀錄**：`（待 commit）`
+
+---
+
+### 14:00 — v0.3.0 新增：模擬身份驗證系統（Mock Auth）
+
+- **更新內容**：
+  實作完整的前端模擬登入系統，讓應用程式具備帳號身份識別能力，所有用戶相關頁面改為動態顯示當前登入者的真實資料。
+
+  **AuthContext（身份驗證 Context）**
+  新增 `src/contexts/AuthContext.tsx`，提供全域身份驗證狀態管理。內建兩組測試帳號：`demo@vocalcanvas.com`（含完整示範資料：5 筆作品庫、使用量統計）與 `empty@vocalcanvas.com`（空白狀態）。登入狀態以 `sessionStorage` 保存，重新整理頁面後保持登入，關閉分頁後自動清除。對外暴露 `useAuth()` hook，提供 `user`、`login()`、`logout()` 三個介面。
+
+  **AuthProviderWrapper（Server 端相容包裝器）**
+  新增 `src/components/AuthProviderWrapper.tsx`，作為「Client Component 薄殼」，讓 Server Component（`src/app/layout.tsx`）能在 layout 層套上 `AuthProvider`，解決 Next.js App Router 的 Server/Client Component 混用限制。
+
+  **Root Layout 整合**
+  `src/app/layout.tsx` 在 `children` 外層包上 `<AuthProviderWrapper>`，使所有頁面（行銷區與 App 區）都能存取 Auth 狀態。
+
+  **App Layout 身份驗證守衛（Auth Guard）**
+  `src/app/(app)/layout.tsx` 加入登入狀態檢查：若使用者未登入（`user === null`），自動重新導向至 `/login`，防止未授權存取 App 工作區任何頁面。
+
+  **登入頁表單串接**
+  `src/app/(marketing)/login/page.tsx` 的 Email/Password 表單呼叫 `AuthContext.login()`，登入成功後自動跳轉至 `/library`；憑證不符時顯示中英雙語錯誤訊息（`「帳號或密碼錯誤」/ "Invalid email or password"`）。
+
+  **Library 頁動態資料**
+  `src/app/(app)/library/page.tsx` 改為從 `AuthContext.user` 取得作品庫清單，`demo` 帳號顯示 5 筆作品，`empty` 帳號顯示「作品庫空白」的空態引導畫面。
+
+  **Account 頁動態資料**
+  `src/app/(app)/account/page.tsx` 改為從 `AuthContext.user` 取得姓名、Email、頭像、使用量數據，頁面內容隨當前登入帳號即時變化。
+
+  **AppShell Profile Row 與登出**
+  `src/components/app/AppShell.tsx` 的側欄底部 Profile Row 改為顯示 `AuthContext.user` 的頭像、姓名、方案標籤；登出按鈕呼叫 `logout()` 並重新導向至 `/login`。
+
+- **更新檔案**：
+  `src/contexts/AuthContext.tsx`、`src/components/AuthProviderWrapper.tsx`、`src/app/layout.tsx`、`src/app/(app)/layout.tsx`、`src/app/(marketing)/login/page.tsx`、`src/app/(app)/library/page.tsx`、`src/app/(app)/account/page.tsx`、`src/components/app/AppShell.tsx`
+
+- **Git 紀錄**：`（待 commit）`
+
+---
+
+### 10:00 — v0.2.1 修復：404 頁 wave 高度單位補齊，確認全站乾淨建置
+
+- **更新內容**：
+  修正 `not-found.tsx`（404 錯誤頁）的 wave 波形棒高度計算，補上明確的 `'px'` 單位（`height: h + 'px'`），與 `signup/page.tsx` 的寫法一致。這個問題在部分瀏覽器中會導致波形棒高度被忽略、顯示為 0。
+  全站建置驗證通過：11 條路由（含 `/_not-found`）全部靜態產生，TypeScript 無錯誤，無任何 warning。
+
+- **更新檔案**：`src/app/not-found.tsx`
+
+- **Git 紀錄**：`（待 commit）`
+
+---
+
+## [0.2.0] — 2026-05-19
+
+### Added
+- **註冊頁** (`/signup`) — 兩欄 layout，Google/LINE OAuth，Email/密碼表單，wave 動畫，語言切換
+- **忘記密碼頁** (`/forgot`) — Email 輸入表單 + success state（信件已寄出畫面 + 重新寄送功能）
+- **404 頁** (`/not-found`) — 404 gradient text，err-wave 動畫，快速連結
+- **Settings 頁** (`/settings`) — 帳號/偏好/通知/說明四 card，Toggle 元件，danger zone
+- **Account 頁** (`/account`) — 個人資料編輯，安全性設定（密碼/2FA/已連結帳號），使用量統計
+- **Onboarding Modal** — 4 步驟引導，左側插圖（hero/voice/script/render），dot indicator
+
+### Changed
+- AppShell profile-row 頭像改為可點擊，導向 `/account`
+- Crumb 格式還原為 demo 規範：當前頁用 `<b>`，parent 用普通文字
+- Rendering overlay 提升至 AppShell `.main` 層（覆蓋 topbar）
+- Settings「看引導教學」觸發 OnboardingModal
+- LangContext 加入 `rendering` / `setRendering` 全域狀態
+
+### Fixed
+- Settings「管理」按鈕改為 `<button>` 符合 WCAG 語意
+- `@keyframes heroWave` 移至 app.css，移除 OnboardingModal inline `<style>`
+- Signup / OnboardingModal wave span height 補 `'px'` 單位
+
+---
+
+## [0.1.1] — 2026-05-19 (patch)
+
+### Fixed
+- **Slider touch 相容性**：Slider 元件加入 touch-event 相容判斷，確保 mobile 拖拽正常
+- **Library 播放按鈕路由**：play button 語意修正，加上 preview 語意（`/new?play=true`）
+- **TopBar crumb 樣式**：移除非必要的 `<b>` wrapper，符合設計稿純文字 crumb 規範
+- **hero-wave height 格式**：明確帶 `px` 單位避免隱性轉換
+- **marketing.css import 順序**：確認 design-tokens 在最頂部正確 import
+- **VoicesPage filter 語意**：gender filter 按鈕組加入 `data-purpose="filter"` attribute
+
+---
+
+## 2026-05-19
+
+### 00:00 — 初始前端實作：完成廣告頁、登入頁與 App 工作區 UI
+
+- **更新內容**：
+  VocalCanvas 完成第一次有意義的前端實作，建立完整的前端頁面架構與 UI 元件系統。
+
+  **專案基礎架構**
+  - 以 Next.js 16.2.6 + TypeScript + React 19 搭建專案骨架。
+  - 使用 Next.js App Router 的 Route Groups 將路由分為 `(marketing)` 行銷區與 `(app)` 工作區兩個獨立群組，各自套用不同 Layout 與 CSS。
+  - 透過 `next/font/google` 在伺服器端載入 Sora、Manrope、JetBrains Mono、Noto Sans TC 四款字型，以 CSS 變數注入全站。
+
+  **設計系統（Design Tokens）**
+  - 建立 `design-tokens.css`，定義完整的設計基礎變數：Coral / Mint / Violet / Ink / Cream 色票、簽名漸層（`--grad-sunset`、`--grad-canvas`、`--grad-aurora`）、陰影、圓角、字型、間距、動效曲線。
+  - 行銷樣式（`marketing.css`）與 App 樣式（`app.css`）都以這份 token 為基礎，不直接寫死色值。
+
+  **廣告頁（Landing Page，`/`）**
+  - Sticky Nav：scroll 後顯示底線，右上角語言切換（local state）。
+  - Hero：左側文案 + 右側模擬播放器 stage card，Hero Wave 動畫（32 棒，sin 函數預算高度）。
+  - Features：三格卡片（男/女聲預設、百分比拉桿、停頓標籤）。
+  - How It Works：四步驟卡片，虛線連接線。
+  - Voices Teaser：四款聲音卡片（晨光 Dawn、夜霧 Mist、焰心 Ember、清玻 Glass）帶 mini-wave。
+  - Use Cases：2×2 使用情境卡片（Podcast、行銷、教育、個人）。
+  - Pricing：Free + Pro 方案卡片。
+  - Final CTA + Footer（四欄 footer grid）。
+  - 全頁雙語支援（中文 / English），語言狀態以 local useState 管理。
+
+  **登入頁（Login Page，`/login`）**
+  - 左側品牌欄：Logo、Tagline、Login Wave 動畫（22 棒）、使用者見證引言。
+  - 右側表單：Google / LINE / Apple OAuth 按鈕、Email + Password 表單、保持登入 checkbox、忘記密碼連結。
+  - 語言切換同步更新 `document.title` 與 `document.documentElement.lang`。
+
+  **App Shell（Sidebar + TopBar）**
+  - Sidebar（280px）：Logo、新作品 CTA 按鈕（漸層背景）、導覽 items（Library / Voices / Settings）、Recent 捷徑、用戶 Profile Row。
+  - 收合功能：點擊 collapse button 切換 76px icon-only 模式（CSS grid 過渡動畫）。
+  - Mobile Drawer：768px 以下 Sidebar 改為 fixed position 從左滑入，半透明遮罩點擊可關閉。
+  - TopBar：左側 breadcrumb（路徑對應中英文名稱）、右側語言切換（透過 LangContext 全站同步）。
+
+  **語言切換系統（LangContext）**
+  - `src/contexts/LangContext.tsx`：提供 `LangProvider` 與 `useLang()` hook。
+  - App 區所有頁面共享同一個語言狀態，TopBar 切換後即時更新所有子頁面。
+
+  **Library 頁（`/library`）**
+  - 作品清單（5 筆示範資料）：每筆顯示波形縮圖、標題、聲音名稱、時長、音質、時間。
+  - 收藏切換（`favorites: Set<string>` state，心型圖示填充/空心切換）。
+  - 下載、更多選項 icon buttons。
+
+  **New Canvas Wizard（`/new`）**
+  - 三步驟 Wizard（Step 指示器：Voice / Script / Render）。
+  - Step 0 Voice Setup：GenderSelector（男/女聲卡片）、三個 Slider（Age / Pitch / Timbre）、VoicePresets（4 款預設）、試聽片段 placeholder。選 Preset 自動帶入 PRESET_TUNING 數值。
+  - Step 1 Script Editor：contentEditable text 節點 + delay tag 節點混排、delay tag 單擊編輯 / 雙擊刪除、插入停頓按鈕、輸出設定 card（格式 / 語言）、預估時長計算（字元數 × 0.15s + 停頓秒數）、rendering overlay（pulseWave 動畫，模擬 2.4 秒處理時間）。
+  - Step 2 Preview：studio-stage 播放器（深色漸層卡片）、80 棒波形（已播 Coral 色，未播半透明）、播放 / 暫停 / 快進 / 快退、速度 pills（0.5× 到 2×）、三個動作卡片（收藏 / 儲存 / 下載）。
+
+  **Voices 頁（`/voices`）**
+  - 6 款聲音 3 欄卡片：晨光、夜霧、焰心、清玻、墨色、花瓣。
+  - 性別篩選 pills（全部 / 女聲 / 男聲）。
+  - 試聽按鈕 + 用這個聲音按鈕（導向 /new）。
+
+  **設計資產**
+  - `public/assets/` 下的 `logo-mark.svg`、`logo-wordmark.svg`、`logo-mark-mono.svg`。
+
+- **更新檔案**：
+  `package.json`、`src/app/layout.tsx`、`src/app/(marketing)/page.tsx`、`src/app/(marketing)/login/page.tsx`、`src/app/(app)/layout.tsx`、`src/app/(app)/library/page.tsx`、`src/app/(app)/new/page.tsx`、`src/app/(app)/voices/page.tsx`、`src/components/app/AppShell.tsx`、`src/components/ui/Slider.tsx`、`src/components/ui/GenderSelector.tsx`、`src/components/ui/VoicePresets.tsx`、`src/components/ui/Steps.tsx`、`src/components/ui/Icons.tsx`、`src/components/ui/Button.tsx`、`src/contexts/LangContext.tsx`、`src/styles/design-tokens.css`、`src/styles/globals.css`、`src/styles/marketing.css`、`src/styles/app.css`、`public/assets/logo-mark.svg`、`public/assets/logo-wordmark.svg`、`public/assets/logo-mark-mono.svg`
+
+- **Git 紀錄**：`77cd44c`
