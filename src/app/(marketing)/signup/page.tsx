@@ -38,7 +38,7 @@ export default function SignupPage(): React.JSX.Element {
       return;
     }
     try {
-      await signup(name, email, password);
+      await signup(name, email, password, lang);
       router.push('/library');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';

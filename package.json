@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:prod": "NEXT_PUBLIC_USE_EMULATORS=false next dev --turbopack",
+    "emulators": "npx firebase emulators:start",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -22,6 +24,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "firebase-tools": "^15.18.0",
     "typescript": "^5"
   }
 }

@@ -279,6 +279,10 @@ function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScr
   const presetInfo = voice.preset ? PRESETS.find((p) => p.id === voice.preset) : null;
 
   const startRender = async (): Promise<void> => {
+    if (user && !user.emailVerified) {
+      alert(lang === 'zh' ? '請先驗證 Email 才能產出音檔（到帳號管理頁重寄驗證信）' : 'Please verify your email before rendering (resend from Account page)');
+      return;
+    }
     setRendering(true);
     try {
       const res = await fetch('/api/tts', {

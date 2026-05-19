@@ -58,10 +58,10 @@ export interface AuthContextValue {
   user: AppUser | null;
   authState: AuthState;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, lang?: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string, lang?: string) => Promise<void>;
   setStaySignedIn: (stay: boolean) => Promise<void>;
 }
 
@@ -191,14 +191,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     // onAuthStateChanged will handle setting user state
   }, []);
 
-  const signup = useCallback(async (name: string, email: string, password: string): Promise<void> => {
+  const signup = useCallback(async (name: string, email: string, password: string, lang?: string): Promise<void> => {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     const firebaseUser = credential.user;
 
     // Set displayName on Firebase Auth profile
     await updateProfile(firebaseUser, { displayName: name });
 
-    // Send email verification
+    // Send email verification in user's language
+    auth.languageCode = lang === 'zh' ? 'zh-TW' : 'en';
     await sendEmailVerification(firebaseUser);
 
     // Create Firestore user document
@@ -221,7 +222,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     // onAuthStateChanged will set user to null
   }, []);
 
-  const resetPassword = useCallback(async (email: string): Promise<void> => {
+  const resetPassword = useCallback(async (email: string, lang?: string): Promise<void> => {
+    auth.languageCode = lang === 'zh' ? 'zh-TW' : 'en';
     await sendPasswordResetEmail(auth, email);
   }, []);
 

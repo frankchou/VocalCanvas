@@ -4,6 +4,30 @@
 
 ## 2026-05-19
 
+### 23:30 — v1.0.1 Email 驗證補完 + Email 模板文案
+
+- **更新內容**：
+  補完 Email 驗證機制的前端檢查邏輯，並新增 Firebase Auth 系統信件的中英雙版文案設計。
+
+  **Account 頁 Email 驗證狀態**
+  Account 頁面（`/account`）的個人資料區塊改為動態讀取 `user.emailVerified` 狀態。未驗證時，Email 旁顯示紅色「未驗證」標籤，並出現「重寄驗證信」按鈕，點擊後呼叫 Firebase `sendEmailVerification` 重新發送驗證信。已驗證時不顯示額外提示。
+
+  **TTS 產出前強制驗證檢查**
+  Script Editor（Step 1）的「產出音檔」按鈕新增 `emailVerified` 前置檢查。未完成 Email 驗證的使用者無法產出音檔，系統會顯示提示訊息引導使用者先完成驗證。
+
+  **聲音試聽前強制驗證檢查**
+  Voices 頁面（`/voices`）的試聽按鈕同樣新增 `emailVerified` 前置檢查。未驗證的使用者無法試聽聲音，需先完成 Email 驗證。
+
+  **Firebase Auth Email 模板文案**
+  完成三封 Firebase Authentication 系統信件的文案設計：Email 驗證信、忘記密碼信、Email 變更確認信。每封信皆有中文與英文兩個版本，語氣溫暖親切，符合品牌調性。文案存放於 `docs/features/firebase-integration/email-templates.md`，需手動貼入 Firebase Console > Authentication > Templates 進行設定。
+
+- **更新檔案**：
+  `src/app/(app)/account/page.tsx`、`src/app/(app)/new/page.tsx`、`src/app/(app)/voices/page.tsx`、`docs/features/firebase-integration/email-templates.md`
+
+- **Git 紀錄**：`（待 commit）`
+
+---
+
 ### 22:00 — v1.0.0 Firebase 全面整合（Phase 1-7）
 
 - **更新內容**：

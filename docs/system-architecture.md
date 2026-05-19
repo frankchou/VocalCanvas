@@ -1,6 +1,6 @@
 # VocalCanvas 系統架構
 
-> 本文件描述系統現況（截至 2026-05-19，v1.0.0），與程式碼保持同步。
+> 本文件描述系統現況（截至 2026-05-19，v1.0.1），與程式碼保持同步。
 
 ---
 
@@ -16,7 +16,7 @@
 | 路由 | Next.js App Router (Route Groups) | — |
 | 狀態管理 | React useState / useContext + Firestore | — |
 | 圖片 | Next.js `<Image>` | — |
-| 身份驗證 | Firebase Auth（Email/Password、Google OAuth） | — |
+| 身份驗證 | Firebase Auth（Email/Password、Google OAuth、Email 驗證） | — |
 | 資料庫 | Cloud Firestore | — |
 | 檔案儲存 | Firebase Storage | — |
 | 語音合成 | Google Cloud Text-to-Speech（Neural2） | — |
@@ -171,6 +171,7 @@ RootLayout (src/app/layout.tsx)
                     │   └── OnboardingModal 觸發入口
                     ├── AccountPage (src/app/(app)/account/page.tsx)
                     │   ├── 個人資料編輯區（姓名 / Email 來自 AuthContext）
+                    │   ├── Email 驗證狀態（動態讀取 emailVerified，未驗證顯示紅色標籤 + 重寄驗證信按鈕）
                     │   ├── 安全性設定（密碼 / 2FA / 已連結帳號）
                     │   └── 使用量統計（來自 AuthContext.user）
                     └── OnboardingModal (src/components/app/OnboardingModal.tsx)

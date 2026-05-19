@@ -132,10 +132,32 @@ export default function AccountPage(): React.JSX.Element {
                 />
                 <button className="btn btn-ghost btn-sm">{t('變更', 'Change')}</button>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--mint-600)' }}>
-                <IconCheck size={12} stroke={2.5} />
-                {t('已驗證', 'Verified')}
-              </div>
+              {user?.emailVerified ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--mint-600)' }}>
+                  <IconCheck size={12} stroke={2.5} />
+                  {t('已驗證', 'Verified')}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--danger, #d94f4f)' }}>
+                    {t('未驗證', 'Not verified')}
+                  </span>
+                  <button
+                    type="button"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--coral-600)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                    onClick={async () => {
+                      const { sendEmailVerification } = await import('firebase/auth');
+                      if (auth.currentUser) {
+                        auth.languageCode = lang === 'zh' ? 'zh-TW' : 'en';
+                        await sendEmailVerification(auth.currentUser);
+                        alert(t('驗證信已寄出，請查收 Email', 'Verification email sent'));
+                      }
+                    }}
+                  >
+                    {t('重寄驗證信', 'Resend')}
+                  </button>
+                </div>
+              )}
             </div>
 
             <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSaveName}>{t('儲存變更', 'Save changes')}</button>

@@ -1,6 +1,6 @@
 # VocalCanvas 系統機制
 
-> 本文件描述各核心功能的實際運作細節（截至 2026-05-19，v1.0.0），與程式碼保持同步。
+> 本文件描述各核心功能的實際運作細節（截至 2026-05-19，v1.0.1），與程式碼保持同步。
 
 ---
 
@@ -100,7 +100,46 @@ type AuthState = 'loading' | 'authenticated' | 'unauthenticated';
 3. 呼叫 `sendEmailVerification` 發送驗證信。
 4. 在 Firestore `users/{uid}` 建立使用者文件。
 
-### 1.5 Session 持久化（Firebase Persistence）
+### 1.5 Email 驗證機制
+
+**檔案：** `src/contexts/AuthContext.tsx`、`src/app/(app)/account/page.tsx`、`src/app/(app)/new/page.tsx`、`src/app/(app)/voices/page.tsx`
+
+Email 驗證是確保使用者信箱真實有效的安全機制，貫穿註冊、帳號管理與核心功能使用三個環節。
+
+#### 1.5.1 註冊時自動發送驗證信
+
+使用者完成註冊後（`signup()` 函式），系統自動呼叫 Firebase `sendEmailVerification(user)` 發送驗證信至註冊信箱。使用者無需額外操作即會收到驗證信，點擊信中連結即可完成驗證。
+
+#### 1.5.2 Account 頁驗證狀態顯示
+
+Account 頁面（`/account`）的個人資料區塊動態讀取 `user.emailVerified` 狀態：
+
+- **已驗證**：Email 旁顯示正常狀態（無額外提示）。
+- **未驗證**：Email 旁顯示紅色「未驗證」標籤，並出現「重寄驗證信」按鈕。點擊按鈕後呼叫 Firebase `sendEmailVerification` 重新發送驗證信。
+
+`emailVerified` 的值來自 Firebase Auth 的 `FirebaseUser.emailVerified` 屬性，在 `buildAppUser()` 中映射至 `AppUser.emailVerified`，隨 `onAuthStateChanged` 即時更新。
+
+#### 1.5.3 TTS 產出前強制檢查
+
+Script Editor（Step 1）的「產出音檔」按鈕點擊時，`startRender()` 函式在呼叫 `/api/tts` 之前先檢查 `user.emailVerified`：
+
+- `emailVerified === true`：正常執行 TTS 渲染流程。
+- `emailVerified === false`：中斷流程，顯示提示訊息要求使用者先完成 Email 驗證，不發送 TTS API 請求。
+
+#### 1.5.4 聲音試聽前強制檢查
+
+Voices 頁面（`/voices`）的試聽按鈕點擊時，同樣檢查 `user.emailVerified`：
+
+- `emailVerified === true`：呼叫 TTS API 產生語音片段進行試聽。
+- `emailVerified === false`：中斷流程，顯示提示訊息要求使用者先完成 Email 驗證，不執行試聽。
+
+#### 1.5.5 Firebase Email 模板設定
+
+Firebase Authentication 的三封系統信件（驗證信、忘記密碼信、Email 變更確認信）均有中英雙版文案，設計文件位於 `docs/features/firebase-integration/email-templates.md`。文案需在 Firebase Console > Authentication > Templates 中手動設定。
+
+---
+
+### 1.6 Session 持久化（Firebase Persistence）
 
 Firebase Auth 內建持久化機制，取代原先的 sessionStorage 方案：
 
@@ -108,7 +147,7 @@ Firebase Auth 內建持久化機制，取代原先的 sessionStorage 方案：
 - `setStaySignedIn(false)` → `setPersistence(auth, browserSessionPersistence)`：關閉分頁後需重新登入。
 - 預設為 `browserLocalPersistence`，由 Firebase SDK 自行管理 IndexedDB 中的 token 存取。
 
-### 1.6 Auth Guard（App 區路由守衛）
+### 1.7 Auth Guard（App 區路由守衛）
 
 `src/app/(app)/layout.tsx` 是 App 工作區的共用 Layout，在 render 子頁面之前先執行身份驗證檢查：
 
@@ -122,7 +161,7 @@ Firebase Auth 內建持久化機制，取代原先的 sessionStorage 方案：
 
 所有在 `(app)` Route Group 下的頁面（`/library`、`/new`、`/voices`、`/settings`、`/account`）都受此守衛保護，未登入者無法直接透過 URL 存取。三態模型避免了初始化期間的誤跳轉閃爍問題。
 
-### 1.7 AuthProviderWrapper（Server/Client 邊界處理）
+### 1.8 AuthProviderWrapper（Server/Client 邊界處理）
 
 Next.js App Router 的 Root Layout（`src/app/layout.tsx`）是 Server Component，無法直接使用 `useState` 或 React Context Provider。`AuthProviderWrapper`（`src/components/AuthProviderWrapper.tsx`）是一個標記 `'use client'` 的薄殼元件，只負責將 `children` 包在 `AuthProvider` 中。Root Layout import 此 wrapper 即可在 Server 端 layout 注入 Client 端的 Context。
 
@@ -133,7 +172,7 @@ layout.tsx (Server Component)
         └── {children}
 ```
 
-### 1.8 動態資料頁面
+### 1.9 動態資料頁面
 
 各頁面透過 `useAuth()` 取得當前 `user`，顯示對應帳號的真實資料：
 
@@ -141,7 +180,7 @@ layout.tsx (Server Component)
 |------|------------|
 | `AppShell.tsx` Sidebar Profile Row | `user.name`、`user.avatar`、`user.avatarUrl`、`user.plan` |
 | `LibraryPage` | `useLibrary(user.id)` — Firestore 即時同步（空集合時顯示空態引導） |
-| `AccountPage` | `user.name`、`user.email`、`user.avatarUrl`、`user.usage` |
+| `AccountPage` | `user.name`、`user.email`、`user.emailVerified`、`user.avatarUrl`、`user.usage` |
 
 ---
 

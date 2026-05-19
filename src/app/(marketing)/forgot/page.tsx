@@ -16,7 +16,7 @@ export default function ForgotPage(): React.JSX.Element {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     try {
-      await resetPassword(email);
+      await resetPassword(email, 'zh');
       setSentEmail(email);
       setFormState('success');
     } catch {

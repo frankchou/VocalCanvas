@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLang } from '@/contexts/LangContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { IconPlay } from '@/components/ui/Icons';
 
 type VoiceGender = 'male' | 'female';
@@ -40,6 +41,7 @@ const ALL_VOICES: Voice[] = [
 export default function VoicesPage(): React.JSX.Element {
   const router = useRouter();
   const { lang } = useLang();
+  const { user } = useAuth();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('all');
   const [previewingId, setPreviewingId] = useState<string | null>(null);
@@ -47,9 +49,12 @@ export default function VoicesPage(): React.JSX.Element {
 
   const handlePreview = async (voice: Voice) => {
     if (previewingId === voice.id) {
-      // Stop current preview
       audioRef.current?.pause();
       setPreviewingId(null);
+      return;
+    }
+    if (user && !user.emailVerified) {
+      alert(lang === 'zh' ? '請先驗證 Email 才能試聽（到帳號管理頁重寄驗證信）' : 'Please verify your email before previewing (resend from Account page)');
       return;
     }
     setPreviewingId(voice.id);
