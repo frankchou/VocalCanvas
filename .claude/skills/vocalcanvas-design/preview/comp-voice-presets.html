@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Voice preset cards · curated voices</div>
+  <style>
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .preset { border-radius: 18px; padding: 16px; background: #fff; box-shadow: var(--shadow-sm); border: 1px solid var(--line-1); transition: all 240ms var(--ease-out); cursor: pointer; }
+    .preset:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .preset .orb { width: 48px; height: 48px; border-radius: 50%; margin-bottom: 10px; }
+    .o-dawn { background: radial-gradient(circle at 30% 25%, #FFC785, #FF5A3C 70%, #BF3015); }
+    .o-mist { background: radial-gradient(circle at 30% 25%, #B49CFF, #6E52F2 70%, #5239D1); }
+    .o-ember { background: radial-gradient(circle at 30% 25%, #FF85A8, #F25C8A 60%, #BF3015); }
+    .o-glass { background: radial-gradient(circle at 30% 25%, #7AE5C0, #1FC68C 70%, #0FA873); }
+    .preset h4 { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin: 0; }
+    .preset .meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-2); margin-top: 4px; }
+    .preset .chip { display: inline-block; margin-top: 8px; font-family: var(--font-body); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: var(--r-pill); background: var(--coral-100); color: var(--coral-700); }
+    .preset .chip.male { background: var(--info-soft); color: var(--violet-600); }
+  </style>
+  <div class="preset-grid">
+    <div class="preset"><div class="orb o-dawn"></div><h4>晨光 · Dawn</h4><div class="meta">warm · bright</div><span class="chip">女聲</span></div>
+    <div class="preset"><div class="orb o-mist"></div><h4>夜霧 · Mist</h4><div class="meta">deep · gentle</div><span class="chip male">男聲</span></div>
+    <div class="preset"><div class="orb o-ember"></div><h4>焰心 · Ember</h4><div class="meta">rough · playful</div><span class="chip">女聲</span></div>
+    <div class="preset"><div class="orb o-glass"></div><h4>清玻 · Glass</h4><div class="meta">cool · soft</div><span class="chip male">男聲</span></div>
+  </div>
+</div></body></html>

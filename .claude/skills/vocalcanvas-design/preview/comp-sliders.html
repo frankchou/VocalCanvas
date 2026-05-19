@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Percentage sliders · the voice-tuning bar</div>
+  <style>
+    .slider { display: grid; grid-template-columns: 100px 1fr 56px; gap: 14px; align-items: center; }
+    .slider-label { font-family: var(--font-body); font-weight: 600; font-size: 13px; }
+    .slider-track { height: 8px; border-radius: var(--r-pill); background: var(--cream-200); box-shadow: var(--shadow-inner); position: relative; }
+    .slider-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--r-pill); background: var(--grad-sunset); }
+    .slider-thumb { position: absolute; top: -7px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(255, 90, 60, 0.4), 0 0 0 2px var(--coral-500); transform: translateX(-50%); }
+    .slider-value { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--coral-600); text-align: right; }
+    .slider-ends { display: flex; justify-content: space-between; font-family: var(--font-body); font-size: 11px; color: var(--fg-3); margin-top: 4px; }
+  </style>
+  <div class="slider">
+    <div class="slider-label">年齡 Age</div>
+    <div>
+      <div class="slider-track"><div class="slider-fill" style="width: 38%;"></div><div class="slider-thumb" style="left: 38%;"></div></div>
+      <div class="slider-ends"><span>young</span><span>old</span></div>
+    </div>
+    <div class="slider-value">38%</div>
+  </div>
+  <div class="slider">
+    <div class="slider-label">音高 Pitch</div>
+    <div>
+      <div class="slider-track"><div class="slider-fill" style="width: 64%;"></div><div class="slider-thumb" style="left: 64%;"></div></div>
+      <div class="slider-ends"><span>低沉 deep</span><span>高亢 bright</span></div>
+    </div>
+    <div class="slider-value">64%</div>
+  </div>
+  <div class="slider">
+    <div class="slider-label">音色 Timbre</div>
+    <div>
+      <div class="slider-track"><div class="slider-fill" style="width: 22%;"></div><div class="slider-thumb" style="left: 22%;"></div></div>
+      <div class="slider-ends"><span>溫柔 gentle</span><span>粗獷 rough</span></div>
+    </div>
+    <div class="slider-value">22%</div>
+  </div>
+</div></body></html>

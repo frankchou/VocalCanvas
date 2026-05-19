@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Form inputs · field, select, language switch</div>
+  <style>
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-family: var(--font-body); font-weight: 600; font-size: 13px; }
+    .field input, .field select { font-family: var(--font-body); font-size: 15px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-2); background: #fff; color: var(--fg-1); outline: none; transition: all 140ms var(--ease-out); }
+    .field input:focus, .field select:focus { border-color: var(--coral-500); box-shadow: 0 0 0 4px var(--coral-100); }
+    .lang-switch { display: inline-flex; background: var(--cream-100); border-radius: var(--r-pill); padding: 4px; }
+    .lang-switch button { font-family: var(--font-body); font-weight: 600; font-size: 13px; padding: 6px 14px; border-radius: var(--r-pill); border: 0; background: transparent; color: var(--fg-2); cursor: pointer; }
+    .lang-switch .active { background: #fff; color: var(--ink-800); box-shadow: var(--shadow-sm); }
+  </style>
+  <div class="grid-3">
+    <div class="field"><label>作品名稱 · Project title</label><input value="產品介紹 · 中文版" /></div>
+    <div class="field"><label>朗讀語言 · Language</label><select><option>中文 (繁體)</option><option>中文 (簡體)</option><option>English (US)</option><option>日本語</option></select></div>
+    <div class="field"><label>輸出格式 · Format</label><select><option>mp3 · 240 kbps</option><option>mp3 · 320 kbps</option><option>wav · 16-bit</option></select></div>
+  </div>
+  <div style="display: flex; gap: 16px; align-items: center; padding-top: 4px; border-top: 1px solid var(--line-1);">
+    <span class="caption">UI Language</span>
+    <div class="lang-switch">
+      <button class="active">中文</button>
+      <button>English</button>
+    </div>
+  </div>
+</div></body></html>

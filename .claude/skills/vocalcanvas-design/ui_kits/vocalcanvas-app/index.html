@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VocalCanvas — clickable prototype</title>
+  <link rel="stylesheet" href="app.css" />
+  <link rel="icon" type="image/svg+xml" href="../../assets/logo-mark.svg" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="components/Icons.jsx"></script>
+  <script type="text/babel" src="components/Primitives.jsx"></script>
+  <script type="text/babel" src="components/AppShell.jsx"></script>
+  <script type="text/babel" src="components/LibraryScreen.jsx"></script>
+  <script type="text/babel" src="components/VoiceSetupScreen.jsx"></script>
+  <script type="text/babel" src="components/ScriptEditorScreen.jsx"></script>
+  <script type="text/babel" src="components/PreviewScreen.jsx"></script>
+  <script type="text/babel" src="components/VoicesScreen.jsx"></script>
+
+  <script type="text/babel">
+    function App() {
+      const [screen, setScreen] = React.useState("library");
+      const [lang, setLang] = React.useState("zh");
+      const [collapsed, setCollapsed] = React.useState(false);
+      const [mobileOpen, setMobileOpen] = React.useState(false);
+      const [state, setState] = React.useState({
+        voice: { gender: "female", age: 32, pitch: 70, timbre: 24, preset: "dawn" },
+        script: DEFAULT_SCRIPT_ZH,
+        rendering: false,
+      });
+
+      const t = (zh, en) => lang === "zh" ? zh : en;
+
+      const crumbForScreen = {
+        "library":       <><b>{t("作品庫", "Library")}</b></>,
+        "voices":        <><b>{t("聲音庫", "Voices")}</b></>,
+        "settings":      <><b>{t("設定", "Settings")}</b></>,
+        "voice-setup":   <><span>{t("新作品", "New canvas")}</span> · <b>{t("挑選聲音", "Voice")}</b></>,
+        "script-editor": <><span>{t("新作品", "New canvas")}</span> · <b>{t("編輯文字", "Script")}</b></>,
+        "preview":       <><span>{t("新作品", "New canvas")}</span> · <b>{t("試聽", "Preview")}</b></>,
+      };
+
+      const sidebarScreen = ["library", "voices", "settings"].includes(screen) ? screen : null;
+
+      let body;
+      if (screen === "library") body = <LibraryScreen goTo={setScreen} lang={lang} />;
+      else if (screen === "voices") body = <VoicesScreen goTo={setScreen} lang={lang} />;
+      else if (screen === "settings") body = (
+        <div className="screen">
+          <div className="screen-header"><div><h1>{t("設定", "Settings")}</h1><div className="sub">{t("帳號、訂閱與偏好設定", "Account, subscription and preferences")}</div></div></div>
+          <div className="card">
+            <div className="section-label">{t("帳號", "Account")}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: "1px solid var(--line-1)" }}>
+              <div className="avatar" style={{ width: 48, height: 48, fontSize: 18 }}>F</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16 }}>Frank Chou</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-2)" }}>frank@example.com</div>
+              </div>
+              <button className="btn btn-ghost btn-sm">{t("編輯", "Edit")}</button>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0" }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: "var(--grad-aurora)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                <IconSparkles size={22} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16 }}>VocalCanvas Pro</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-2)" }}>{t("240 分鐘可用 · 下次扣款 6/19", "240 minutes left · Renews 6/19")}</div>
+              </div>
+              <button className="btn btn-ghost btn-sm">{t("管理訂閱", "Manage")}</button>
+            </div>
+          </div>
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="section-label">{t("偏好設定", "Preferences")}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 10 }}>
+              <div>
+                <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13, marginBottom: 6 }}>{t("介面語言", "UI Language")}</div>
+                <div className="lang-switch">
+                  <button className={lang === "zh" ? "active" : ""} onClick={() => setLang("zh")}>中文</button>
+                  <button className={lang === "en" ? "active" : ""} onClick={() => setLang("en")}>English</button>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13, marginBottom: 6 }}>{t("預設輸出", "Default format")}</div>
+                <select style={{ width: "100%", fontFamily: "var(--font-body)", fontSize: 14, padding: "8px 12px", borderRadius: 10, border: "1px solid var(--line-2)", background: "#fff", outline: "none" }}>
+                  <option>mp3 · 240 kbps</option>
+                  <option>mp3 · 320 kbps</option>
+                  <option>wav · 16-bit</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+      else if (screen === "voice-setup")   body = <VoiceSetupScreen state={state} setState={setState} goTo={setScreen} lang={lang} />;
+      else if (screen === "script-editor") body = <ScriptEditorScreen state={state} setState={setState} goTo={setScreen} lang={lang} />;
+      else if (screen === "preview")       body = <PreviewScreen state={state} setState={setState} goTo={setScreen} lang={lang} />;
+
+      return (
+        <div className={`app ${collapsed ? "collapsed" : ""}`} data-screen-label={`VocalCanvas — ${screen}`}>
+          <div
+            className={`sidebar-backdrop ${mobileOpen ? "mobile-open" : ""}`}
+            onClick={() => setMobileOpen(false)}
+          ></div>
+          <Sidebar
+            screen={sidebarScreen || ""}
+            goTo={setScreen}
+            libraryCount={5}
+            mobileOpen={mobileOpen}
+            onToggleCollapse={() => setCollapsed(!collapsed)}
+            onCloseMobile={() => setMobileOpen(false)}
+          />
+          <div className="main" style={{ position: "relative" }}>
+            <TopBar
+              crumb={crumbForScreen[screen]}
+              lang={lang}
+              setLang={setLang}
+              onMenu={() => setMobileOpen(true)}
+            />
+            {body}
+            {state.rendering && (
+              <div className="rendering-overlay">
+                <div className="rendering-card">
+                  <div className="pulse-wave">
+                    {[1,2,3,4,5,6,7].map(i => (
+                      <span key={i} style={{ animationDelay: `${i*0.1}s`, height: 40 + (i%3)*8 + "px" }}></span>
+                    ))}
+                  </div>
+                  <h3>{t("正在調色盤上混音…", "Mixing on the palette…")}</h3>
+                  <p>{t("AI 正在為你的文字配音，大約 12 秒。", "AI is voicing your script — about 12s.")}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

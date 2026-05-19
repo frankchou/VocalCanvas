@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card dark">
+  <div class="eyebrow" style="color: var(--coral-300);">Playback bar · the studio</div>
+  <style>
+    .wave { display: flex; align-items: center; gap: 3px; height: 56px; }
+    .wave span { width: 3px; border-radius: 2px; background: var(--coral-400); }
+    .wave .played { background: var(--coral-500); }
+    .pb { display: grid; grid-template-columns: auto 1fr auto auto; gap: 20px; align-items: center; padding: 16px 20px; background: rgba(255,255,255,0.04); border-radius: 20px; border: 1px solid var(--line-on-dark); }
+    .pb-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--coral-500); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-glow); }
+    .pb-btn svg { width: 18px; height: 18px; }
+    .pb-time { font-family: var(--font-mono); font-size: 13px; color: rgba(255,252,247,0.8); }
+    .speed-pills { display: flex; gap: 4px; background: rgba(255,255,255,0.08); border-radius: var(--r-pill); padding: 3px; }
+    .speed-pills span { font-family: var(--font-mono); font-size: 12px; padding: 5px 10px; border-radius: var(--r-pill); color: rgba(255,252,247,0.7); cursor: pointer; }
+    .speed-pills .active { background: var(--coral-500); color: #fff; font-weight: 600; }
+  </style>
+  <div class="pb">
+    <button class="pb-btn"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg></button>
+    <div>
+      <div class="wave">
+        <!-- waveform -->
+        <script>document.write([8,14,22,18,30,26,16,10,6,12,20,28,34,38,30,24,18,14,22,28,34,40,32,24,18,12,8,14,20,26].map((h,i)=>`<span class="${i<14?'played':''}" style="height:${h}px"></span>`).join(''))</script>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+        <div class="pb-time">00:18</div>
+        <div class="pb-time" style="color: var(--coral-300);">vocalcanvas_dawn_240519.mp3</div>
+        <div class="pb-time">01:08</div>
+      </div>
+    </div>
+    <div class="speed-pills">
+      <span>0.5×</span><span>0.75×</span><span class="active">1×</span><span>1.25×</span><span>1.5×</span><span>2×</span>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="pb-btn" style="background: rgba(255,255,255,0.08); box-shadow: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+      <button class="pb-btn" style="background: rgba(255,255,255,0.08); box-shadow: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+    </div>
+  </div>
+</div></body></html>

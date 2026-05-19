@@ -1,0 +1,36 @@
+/* Shared base for design-system preview cards */
+@import url("../colors_and_type.css");
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg-1);
+}
+.card {
+  padding: 24px 28px;
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card.tight { padding: 20px 24px; gap: 12px; }
+.card.dark {
+  background: var(--bg-canvas);
+  color: var(--fg-on-dark);
+  background-image: var(--grad-canvas);
+}
+.swatch-row { display: flex; gap: 0; align-items: stretch; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-sm); }
+.swatch { flex: 1; min-height: 84px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 12px; color: #fff; font-family: var(--font-mono); font-size: 11px; line-height: 1.2; }
+.swatch .name { font-family: var(--font-body); font-weight: 700; font-size: 12px; letter-spacing: 0.02em; }
+.swatch .hex { opacity: 0.85; margin-top: 2px; }
+.swatch.on-light { color: var(--ink-800); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.flex-col { display: flex; flex-direction: column; gap: 12px; }
+.token { font-family: var(--font-mono); font-size: 11px; color: var(--fg-2); }
+.specimen-text { color: var(--fg-1); }

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Toast · feedback messages</div>
+  <style>
+    .toast { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; box-shadow: var(--shadow-md); font-family: var(--font-body); font-size: 14px; }
+    .toast .ico { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; flex-shrink: 0; }
+    .t-success { background: #fff; border: 1px solid var(--mint-300); }
+    .t-success .ico { background: var(--mint-500); }
+    .t-render { background: var(--ink-800); color: var(--cream-50); }
+    .t-render .ico { background: var(--grad-sunset); }
+    .t-error { background: #fff; border: 1px solid #F5B5BA; }
+    .t-error .ico { background: var(--danger); }
+    .t-info { background: #fff; border: 1px solid var(--violet-300); }
+    .t-info .ico { background: var(--violet-500); }
+  </style>
+  <div class="toast t-render">
+    <div class="ico">●</div>
+    <div><b>正在調色盤上混音…</b> <span style="opacity: 0.7;">Mixing on the palette · about 12s left</span></div>
+  </div>
+  <div class="toast t-success">
+    <div class="ico">✓</div>
+    <div><b>音檔已產出</b> <span style="color: var(--fg-2);">Render complete · saved to library</span></div>
+  </div>
+  <div class="toast t-error">
+    <div class="ico">!</div>
+    <div><b>連線不穩</b> <span style="color: var(--fg-2);">Network shaky — saved locally for now.</span></div>
+  </div>
+  <div class="toast t-info">
+    <div class="ico" style="font-size: 12px;">i</div>
+    <div><b>新增停頓</b> <span style="color: var(--fg-2);">Tap the script where you want it to land.</span></div>
+  </div>
+</div></body></html>

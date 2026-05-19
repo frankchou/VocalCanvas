@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Library item · saved take</div>
+  <style>
+    .lib { display: grid; grid-template-columns: 80px 1fr auto auto; gap: 18px; align-items: center; background: #fff; border-radius: 16px; padding: 14px 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--line-1); }
+    .lib-thumb { width: 80px; height: 64px; border-radius: 12px; background: linear-gradient(135deg, var(--coral-100), var(--pink-300)); display: flex; align-items: center; justify-content: center; gap: 2px; }
+    .lib-thumb span { width: 3px; border-radius: 2px; background: var(--coral-600); }
+    .lib-meta .title { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+    .lib-meta .sub { font-family: var(--font-body); font-size: 13px; color: var(--fg-2); margin-top: 2px; display: flex; gap: 12px; }
+    .lib-meta .sub .voice-chip { color: var(--coral-700); font-weight: 600; }
+    .iconbtn { width: 36px; height: 36px; border: 0; background: transparent; color: var(--fg-2); border-radius: 50%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 140ms var(--ease-out); }
+    .iconbtn:hover { background: rgba(255,90,60,0.08); color: var(--coral-600); }
+    .iconbtn.fav { color: var(--coral-500); }
+    .iconbtn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .iconbtn.fav svg { fill: var(--coral-500); }
+  </style>
+  <div class="lib">
+    <div class="lib-thumb">
+      <script>document.write([6,12,18,24,18,10,14,22,16,10,8,16,22,18].map(h=>`<span style="height:${h}px"></span>`).join(''))</script>
+    </div>
+    <div class="lib-meta">
+      <div class="title">產品介紹 · 中文版</div>
+      <div class="sub">
+        <span class="voice-chip">晨光 · Dawn</span>
+        <span>01:08</span>
+        <span>240 kbps</span>
+        <span>Rendered 2h ago</span>
+      </div>
+    </div>
+    <div style="display: flex; gap: 4px;">
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor"/></svg></button>
+      <button class="iconbtn fav"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
+    </div>
+  </div>
+</div></body></html>

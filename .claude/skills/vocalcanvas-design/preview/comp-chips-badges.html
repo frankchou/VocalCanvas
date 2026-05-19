@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Chips · badges · status</div>
+  <style>
+    .chip { font-family: var(--font-body); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-pill); display: inline-flex; align-items: center; gap: 6px; }
+    .chip.coral { background: var(--coral-100); color: var(--coral-700); }
+    .chip.violet { background: var(--info-soft); color: var(--violet-600); }
+    .chip.mint   { background: var(--positive-soft); color: var(--mint-600); }
+    .chip.amber  { background: var(--warning-soft); color: #8B4513; }
+    .chip.ink    { background: var(--cream-200); color: var(--ink-700); }
+    .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .chip.live .dot { background: var(--mint-500); animation: pulse 1.6s var(--ease-in-out) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .badge { font-family: var(--font-body); font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .badge.new { background: var(--coral-500); color: #fff; }
+    .badge.pro { background: var(--grad-aurora); color: #fff; }
+    .badge.beta { background: var(--ink-800); color: var(--cream-50); }
+  </style>
+  <div class="flex-row">
+    <span class="chip coral">女聲 · Female</span>
+    <span class="chip violet">男聲 · Male</span>
+    <span class="chip mint live"><span class="dot"></span>Rendering</span>
+    <span class="chip ink">中文 (繁體)</span>
+    <span class="chip amber">240 kbps</span>
+    <span class="chip mint"><span class="dot"></span>Ready</span>
+  </div>
+  <div class="flex-row">
+    <span class="badge new">New</span>
+    <span class="badge pro">Pro</span>
+    <span class="badge beta">Beta</span>
+    <span style="font-family: var(--font-mono); font-size: 11px; color: var(--fg-2);">Use badges sparingly — only on cards that genuinely earn attention.</span>
+  </div>
+</div></body></html>

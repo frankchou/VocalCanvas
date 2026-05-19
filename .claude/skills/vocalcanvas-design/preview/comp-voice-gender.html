@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"></head>
+<body><div class="card">
+  <div class="eyebrow">Voice gender selector · 男聲 / 女聲</div>
+  <style>
+    .gender-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .gender-card { border-radius: 20px; padding: 20px; cursor: pointer; transition: all 240ms var(--ease-out); border: 1px solid var(--line-1); background: #fff; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+    .gender-card.selected { box-shadow: var(--shadow-md), inset 0 0 0 2px var(--coral-500); border-color: transparent; }
+    .gender-card .orb { width: 56px; height: 56px; border-radius: 50%; margin-bottom: 12px; position: relative; }
+    .gender-card.male .orb { background: radial-gradient(circle at 35% 30%, #B49CFF, #5239D1); }
+    .gender-card.female .orb { background: radial-gradient(circle at 35% 30%, #FFB3C8, #FF5A3C); }
+    .gender-card h3 { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0; }
+    .gender-card .sub { font-family: var(--font-body); font-size: 13px; color: var(--fg-2); margin-top: 2px; }
+    .gender-card .check { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%; background: var(--coral-500); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; }
+  </style>
+  <div class="gender-grid">
+    <div class="gender-card male">
+      <div class="orb"></div>
+      <h3>男聲 <span style="color: var(--fg-3); font-weight: 400; font-size: 16px;">— Male</span></h3>
+      <div class="sub">Lower registers, baritones, warm bass.</div>
+    </div>
+    <div class="gender-card female selected">
+      <div class="orb"></div>
+      <h3>女聲 <span style="color: var(--fg-3); font-weight: 400; font-size: 16px;">— Female</span></h3>
+      <div class="sub">Higher registers, soprano, soft alto.</div>
+      <div class="check">✓</div>
+    </div>
+  </div>
+</div></body></html>
