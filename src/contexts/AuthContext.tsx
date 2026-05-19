@@ -63,6 +63,7 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   resetPassword: (email: string, lang?: string) => Promise<void>;
   setStaySignedIn: (stay: boolean) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +138,7 @@ const AuthContext = createContext<AuthContextValue>({
   logout: async () => {},
   resetPassword: async () => {},
   setStaySignedIn: async () => {},
+  refreshUser: async () => {},
 });
 
 // ---------------------------------------------------------------------------
@@ -198,17 +200,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     // Set displayName on Firebase Auth profile
     await updateProfile(firebaseUser, { displayName: name });
 
-    // Send email verification in user's language
-    auth.languageCode = lang === 'zh' ? 'zh-TW' : 'en';
-    await sendEmailVerification(firebaseUser);
-
     // Create Firestore user document
     const userRef = doc(db, 'users', firebaseUser.uid);
     await setDoc(userRef, {
       ...defaultUserDoc(firebaseUser),
-      name, // Use the provided name (updateProfile may not have propagated yet)
+      name,
     });
-    // onAuthStateChanged will fire and build the AppUser
+
+    // Manually build AppUser now (don't wait for onAuthStateChanged which fires too early)
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      setUser(buildAppUser(firebaseUser, snap.data() as Record<string, unknown>));
+      setAuthState('authenticated');
+    }
+
+    // Send verification email — non-blocking, failure here should not break signup
+    try {
+      auth.languageCode = lang === 'zh' ? 'zh-TW' : 'en';
+      const continueUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/verify`
+        : 'http://localhost:3000/auth/verify';
+      await sendEmailVerification(firebaseUser, {
+        url: continueUrl,
+        handleCodeInApp: false,
+      });
+    } catch {
+      console.warn('[signup] Failed to send verification email — user can resend from verify page');
+    }
   }, []);
 
   const loginWithGoogle = useCallback(async (): Promise<void> => {
@@ -231,9 +249,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     await setPersistence(auth, stay ? browserLocalPersistence : browserSessionPersistence);
   }, []);
 
+  const refreshUser = useCallback(async (): Promise<void> => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) return;
+    await firebaseUser.reload();
+    const userRef = doc(db, 'users', firebaseUser.uid);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      setUser(buildAppUser(firebaseUser, snap.data() as Record<string, unknown>));
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, authState, login, signup, loginWithGoogle, logout, resetPassword, setStaySignedIn }}
+      value={{ user, authState, login, signup, loginWithGoogle, logout, resetPassword, setStaySignedIn, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

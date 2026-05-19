@@ -10,12 +10,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }): 
   const { user, authState } = useAuth();
   const router = useRouter();
 
-  // 未登入時導回 /login
+  // 未登入時導回 /login，已登入但未驗證 email 導到驗證頁
   useEffect(() => {
     if (authState === 'unauthenticated') {
       router.replace('/login');
+    } else if (authState === 'authenticated' && user && !user.emailVerified) {
+      router.replace('/verify-email');
     }
-  }, [authState, router]);
+  }, [authState, user, router]);
 
   // Firebase 認證狀態確認前顯示載入畫面，避免閃爍
   if (authState === 'loading') {
@@ -26,8 +28,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }): 
     );
   }
 
-  // 尚未認證時不渲染子頁面（useEffect 會導向 /login）
-  if (authState !== 'authenticated') {
+  // 尚未認證或未驗證 email 時不渲染子頁面
+  if (authState !== 'authenticated' || (user && !user.emailVerified)) {
     return <></>;
   }
 

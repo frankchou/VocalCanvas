@@ -39,7 +39,7 @@ export default function SignupPage(): React.JSX.Element {
     }
     try {
       await signup(name, email, password, lang);
-      router.push('/library');
+      router.push('/verify-email');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
       if (message.includes('email-already-in-use')) {

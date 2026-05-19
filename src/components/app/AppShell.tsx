@@ -13,6 +13,7 @@ import {
   IconClock,
   IconChevronLeft,
 } from '@/components/ui/Icons';
+import { useLibrary } from '@/hooks/useLibrary';
 
 // ---- Crumb mapping ----
 // parent 用普通文字，當前頁用 <b>，比照 demo 設計稿格式
@@ -41,8 +42,11 @@ function Sidebar({ mobileOpen, onCloseMobile, onToggleCollapse }: SidebarProps):
     router.push('/login');
   };
 
+  const { items: recentItems } = useLibrary(user?.id);
+  const recentFive = recentItems.slice(0, 5);
+
   const nav = [
-    { id: 'library',  href: '/library',  label: 'Library',  icon: <IconLibrary size={18} />,   count: 5 },
+    { id: 'library',  href: '/library',  label: 'Library',  icon: <IconLibrary size={18} />,   count: recentItems.length || undefined },
     { id: 'voices',   href: '/voices',   label: 'Voices',   icon: <IconHeadphones size={18} /> },
     { id: 'settings', href: '/settings', label: 'Settings', icon: <IconSettings size={18} /> },
   ];
@@ -87,19 +91,22 @@ function Sidebar({ mobileOpen, onCloseMobile, onToggleCollapse }: SidebarProps):
         </button>
       ))}
 
-      <div className="nav-section">Recent</div>
-      <button className="nav-item" title="產品介紹">
-        <span className="ico"><IconClock size={18} /></span>
-        <span>產品介紹 · 中文版</span>
-      </button>
-      <button className="nav-item" title="Welcome script">
-        <span className="ico"><IconClock size={18} /></span>
-        <span>Welcome script · EN</span>
-      </button>
-      <button className="nav-item" title="Podcast intro">
-        <span className="ico"><IconClock size={18} /></span>
-        <span>Podcast intro v2</span>
-      </button>
+      {recentFive.length > 0 && (
+        <>
+          <div className="nav-section">Recent</div>
+          {recentFive.map((item) => (
+            <button
+              key={item.id}
+              className="nav-item"
+              title={item.title}
+              onClick={() => handleNav('/new')}
+            >
+              <span className="ico"><IconClock size={18} /></span>
+              <span>{item.title}</span>
+            </button>
+          ))}
+        </>
+      )}
 
       <div className="profile-row">
         <button
