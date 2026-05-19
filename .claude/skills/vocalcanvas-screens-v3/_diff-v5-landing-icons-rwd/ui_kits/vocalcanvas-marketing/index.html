@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VocalCanvas — 用 AI 為文字配音</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/logo-mark.svg" />
+  <link rel="stylesheet" href="marketing.css" />
+</head>
+<body data-screen-label="VocalCanvas — Landing">
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-brand">
+    <img src="../../assets/logo-mark.svg" width="32" height="32" alt="" />
+    <span class="name">VocalCanvas</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">功能</a>
+    <a href="#scenarios">情境模式</a>
+    <a href="#how">如何運作</a>
+    <a href="#voices">聲音庫</a>
+    <a href="#pricing">方案</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button class="active">中文</button>
+      <button>English</button>
+    </div>
+    <a href="login.html" class="btn btn-ghost" style="padding: 8px 16px; font-size: 14px;">登入</a>
+    <a href="index.html#cta" class="btn btn-render" style="padding: 8px 18px; font-size: 14px;">免費試用</a>
+    <button class="nav-menu" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" class="ico-stroke"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">AI 語音朗讀 · 情境模式 · 多語言</div>
+      <h1>讓你的文字<br/><span class="sunset">擁有聲音</span>。</h1>
+      <p class="hero-sub">挑一個情境 — 冥想、睡前故事、Podcast 開場 — AI 自動配好聲音與背景音樂。也可以從零自訂，插入停頓、微調音色，產出像對話一樣自然的音檔。</p>
+      <div class="hero-ctas">
+        <a href="login.html" class="btn btn-render btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><path d="M12 3l1.5 5 5 1.5-5 1.5L12 16l-1.5-5-5-1.5 5-1.5L12 3z"/></svg>
+          開始免費試用
+        </a>
+        <a href="#how" class="btn btn-ghost btn-lg">看示範</a>
+      </div>
+      <div class="hero-trust">
+        <div class="avatars"><div></div><div></div><div></div><div></div></div>
+        <span>已有 <b style="color: var(--fg-1);">2,400+</b> 位創作者使用 VocalCanvas 製作配音</span>
+      </div>
+    </div>
+
+    <div style="position: relative;">
+      <!-- Floating script snippet -->
+      <div class="hero-snippet">
+        歡迎來到 VocalCanvas <span class="tag">&lt;delay 0.8s&gt;</span>
+        讓你的文字 <span class="tag">&lt;delay 0.5s&gt;</span> 擁有聲音。
+      </div>
+
+      <div class="hero-stage">
+        <div class="hero-stage-head">
+          <div>
+            <h3 class="hero-stage-title">產品介紹 · 中文版</h3>
+            <div class="hero-stage-sub">晨光 · Dawn · 中文 (繁體) · mp3 240 kbps</div>
+          </div>
+          <span class="preset-chip">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--mint-500);"></span>
+            就緒
+          </span>
+        </div>
+        <div class="hero-wave" id="hero-wave"></div>
+        <div class="hero-stage-controls">
+          <button class="hero-stage-btn" aria-label="Play">
+            <svg width="22" height="22" viewBox="0 0 24 24" class="ico-fill"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          </button>
+          <div class="hero-stage-progress">
+            <div class="bar"><div class="fill"></div></div>
+            <div class="times"><span>00:26</span><span>01:08</span></div>
+          </div>
+          <div class="hero-stage-speed">
+            <span>0.5×</span><span>0.75×</span><span class="active">1×</span><span>1.25×</span><span>1.5×</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section" id="features">
+  <div class="eyebrow">核心功能</div>
+  <h2 class="section-title">不只是 TTS — 是<br/>有溫度的語音工具。</h2>
+  <p class="section-sub">挑性別、調音色、插入停頓、選播放速度。從文字到音檔，每一步都在你的掌握之中。</p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="ico-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </div>
+      <h3>男聲 / 女聲，精選預設</h3>
+      <p>從六款精選聲音中挑選 — 晨光、夜霧、焰心、清玻 — 每一款都是 AI 訓練出的細緻音色。也可以從零開始打造你的聲音。</p>
+    </div>
+    <div class="feature">
+      <div class="ico-wrap" style="background: var(--info-soft); color: var(--violet-600);">
+        <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <h3>百分比拉桿，精細微調</h3>
+      <p>年齡、音高（低沉↔高亢）、音色（溫柔↔粗獷） — 用直觀的百分比拉桿，把聲音調整到你心中的那個樣子。</p>
+    </div>
+    <div class="feature">
+      <div class="ico-wrap" style="background: var(--positive-soft); color: var(--mint-600);">
+        <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>停頓標籤，讓聲音呼吸</h3>
+      <p>在任何地方插入 <code style="font-family: var(--font-mono); font-size: 13px; background: var(--info-soft); color: var(--violet-600); padding: 2px 6px; border-radius: 6px;">&lt;delay 0.8s&gt;</code> 讓 AI 在那裡停一下。長度自由設定，朗讀像對話、像呼吸。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCENARIOS ============ -->
+<section class="section" id="scenarios">
+  <div class="eyebrow">情境模式</div>
+  <h2 class="section-title">不只是配音 —<br/>是有<span style="background: var(--grad-sunset); -webkit-background-clip: text; background-clip: text; color: transparent;">情境</span>的聲音作品。</h2>
+  <p class="section-sub">一鍵選擇情境，VocalCanvas 自動配好聲音、音色、與背景音樂。產出時混音為單一音檔，下載即用。</p>
+
+  <div class="scenarios-grid">
+    <div class="scenario-card" style="background: linear-gradient(135deg, #7AE5C0 0%, #6E52F2 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.5v3.5"/><path d="M7.5 19c1.5-4 3-6 4.5-6s3 2 4.5 6"/><path d="M4.5 19h15"/></svg></div>
+      <h4>冥想</h4>
+      <div class="sub-en">Meditation · 柔和 · 緩慢 · 低沉</div>
+      <p class="desc">引導冥想、瑜珈靜心、正念呼吸 — 配上海浪、森林或頌缽聲，讓人沉浸下來。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">🌊 海浪</span>
+        <span class="bgm-chip">🌲 森林</span>
+        <span class="bgm-chip">◉ 頌缽</span>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="background: linear-gradient(135deg, #6E52F2 0%, #FF85A8 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      <h4>睡前故事</h4>
+      <div class="sub-en">Bedtime · 溫暖 · 輕柔</div>
+      <p class="desc">親子睡前故事、安眠引導、ASMR 朗讀 — 雨聲與輕鋼琴讓孩子（或自己）安心入眠。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">💧 雨聲</span>
+        <span class="bgm-chip">♪ 輕鋼琴</span>
+        <span class="bgm-chip">🌲 森林</span>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="background: linear-gradient(135deg, #FFC785 0%, #F25C8A 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 5 5 1.5-5 1.5L12 16l-1.5-5-5-1.5 5-1.5L12 3z"/><path d="M19 14l.7 2.3 2.3.7-2.3.7L19 20l-.7-2.3L16 17l2.3-.7z"/></svg></div>
+      <h4>正念肯定語</h4>
+      <div class="sub-en">Affirmation · 柔和 · 堅定</div>
+      <p class="desc">每日自我肯定、療癒練習、靈性內容 — 頌缽與環境音帶來凝聚的能量場。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">◉ 頌缽</span>
+        <span class="bgm-chip">≈ 環境音</span>
+        <span class="bgm-chip">♪ 輕鋼琴</span>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="background: linear-gradient(135deg, #FF5A3C 0%, #FFA94D 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
+      <h4>Podcast 開場</h4>
+      <div class="sub-en">Podcast intro · 清亮 · 動感</div>
+      <p class="desc">節目片頭、廣告插入、結尾 outro — 動感節拍或電影感配樂，讓你的節目專業感倍增。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">♬ 動感節拍</span>
+        <span class="bgm-chip">▲ 電影感</span>
+        <span class="bgm-chip">○ 純朗讀</span>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="background: linear-gradient(135deg, #F25C8A 0%, #FF5A3C 50%, #FFA94D 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 22 22 3 13 3 11"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>
+      <h4>廣告</h4>
+      <div class="sub-en">Advertisement · 自信 · 有節奏</div>
+      <p class="desc">社群短影音配音、品牌廣告、活動宣傳 — 自動混合人聲與背景音，無需後製。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">♬ 動感節拍</span>
+        <span class="bgm-chip">▲ 電影感</span>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="background: linear-gradient(135deg, #2A271F 0%, #6C6757 100%);">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <h4>有聲書</h4>
+      <div class="sub-en">Audiobook · 沉穩 · 清晰</div>
+      <p class="desc">小說朗讀、有聲書試讀、長篇文章 — 純人聲或搭輕鋼琴，專注於文字本身。</p>
+      <div class="bgm-row">
+        <span class="bgm-chip">○ 純朗讀</span>
+        <span class="bgm-chip">♪ 輕鋼琴</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px;">
+    <p style="font-family: var(--font-body); font-size: 14px; color: var(--fg-2); margin: 0 0 16px;">
+      或選「<b style="color: var(--fg-1);">自訂</b>」從零打造 — 9 款 BGM 任你混搭。
+    </p>
+    <a href="login.html" class="btn btn-render">
+      <svg width="16" height="16" viewBox="0 0 24 24" class="ico-stroke"><path d="M12 3l1.5 5 5 1.5-5 1.5L12 16l-1.5-5-5-1.5 5-1.5L12 3z"/></svg>
+      免費試用情境模式
+    </a>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section" id="how" style="background: var(--cream-100); max-width: none; padding-left: 0; padding-right: 0;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 0 48px;">
+    <div class="eyebrow">四步驟，從文字到音檔</div>
+    <h2 class="section-title">流程簡單到<br/>不像 AI 工具。</h2>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>挑一個聲音</h4>
+        <p>男聲或女聲，從預設庫挑或自己調。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>編輯朗讀稿</h4>
+        <p>貼上文字，在重點處插入停頓標籤。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>產出音檔</h4>
+        <p>AI 朗讀，10 秒內試聽完成品。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>收藏或下載</h4>
+        <p>調整播放速度，存到作品庫或下載 mp3。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICES TEASER ============ -->
+<section class="section" id="voices">
+  <div class="eyebrow">聲音庫</div>
+  <h2 class="section-title">六款精選 AI 聲音，<br/>每一款都有性格。</h2>
+  <p class="section-sub">每一款預設聲音都經過細緻調校，符合不同的使用情境。你可以直接用，也可以基於它再微調。</p>
+
+  <div class="voices-row">
+    <div class="voice-card">
+      <div class="orb v-dawn"></div>
+      <h4>晨光 · Dawn</h4>
+      <div class="meta">female · warm · bright</div>
+      <div class="play-row">
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 24 24" class="ico-fill"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+        <div class="mini-wave"><script>document.write([6,12,18,14,8,12,18,22,16,10,14,8].map(h=>`<span style="height:${h}px"></span>`).join(''))</script></div>
+      </div>
+    </div>
+    <div class="voice-card">
+      <div class="orb v-mist"></div>
+      <h4>夜霧 · Mist</h4>
+      <div class="meta">male · deep · gentle</div>
+      <div class="play-row">
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 24 24" class="ico-fill"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+        <div class="mini-wave"><script>document.write([4,8,14,20,16,10,6,12,18,14,8,12].map(h=>`<span style="height:${h}px"></span>`).join(''))</script></div>
+      </div>
+    </div>
+    <div class="voice-card">
+      <div class="orb v-ember"></div>
+      <h4>焰心 · Ember</h4>
+      <div class="meta">female · rough · playful</div>
+      <div class="play-row">
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 24 24" class="ico-fill"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+        <div class="mini-wave"><script>document.write([8,14,22,18,12,16,20,14,8,12,18,22].map(h=>`<span style="height:${h}px"></span>`).join(''))</script></div>
+      </div>
+    </div>
+    <div class="voice-card">
+      <div class="orb v-glass"></div>
+      <h4>清玻 · Glass</h4>
+      <div class="meta">male · cool · soft</div>
+      <div class="play-row">
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 24 24" class="ico-fill"><polygon points="6 4 20 12 6 20 6 4"/></svg></button>
+        <div class="mini-wave"><script>document.write([6,10,14,12,8,14,18,12,8,14,18,12].map(h=>`<span style="height:${h}px"></span>`).join(''))</script></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 32px;">
+    <a href="login.html" class="btn btn-ghost">查看全部聲音 →</a>
+  </div>
+</section>
+
+<!-- ============ USE CASES ============ -->
+<section class="section" style="background: var(--cream-100); max-width: none; padding-left: 0; padding-right: 0;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 0 48px;">
+    <div class="eyebrow">適合誰</div>
+    <h2 class="section-title">不管你做什麼，<br/>VocalCanvas 都能幫你發聲。</h2>
+
+    <div class="usecase-grid">
+      <div class="usecase">
+        <div class="uc-ico">
+          <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-7h3v5zM3 19a2 2 0 0 0 2 2h1v-7H3v5z"/></svg>
+        </div>
+        <div>
+          <h4>Podcast 創作者</h4>
+          <p>快速產出開場白、廣告插入、節目片頭 — 不用再開錄音室，半小時搞定一集前後段。</p>
+        </div>
+      </div>
+      <div class="usecase">
+        <div class="uc-ico" style="color: var(--violet-600);">
+          <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div>
+          <h4>內容行銷團隊</h4>
+          <p>短影音配音、品牌廣告、社群影片旁白 — 不用每次都找配音員，自己改一個字就重新產出。</p>
+        </div>
+      </div>
+      <div class="usecase">
+        <div class="uc-ico" style="color: var(--mint-600);">
+          <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <h4>教育與線上課程</h4>
+          <p>教材朗讀、語言學習素材、無障礙閱讀 — 多語言支援讓內容跨越語言界線。</p>
+        </div>
+      </div>
+      <div class="usecase">
+        <div class="uc-ico" style="color: var(--coral-600);">
+          <svg width="28" height="28" viewBox="0 0 24 24" class="ico-stroke"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div>
+          <h4>個人創作者</h4>
+          <p>自己的小說朗讀、有聲書試讀、社群短影音 — 把文字變成有溫度的聲音，再分享出去。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="section" id="pricing">
+  <div style="text-align: center;">
+    <div class="eyebrow">方案</div>
+    <h2 class="section-title" style="margin-left: auto; margin-right: auto;">先試試，再決定。</h2>
+    <p class="section-sub" style="margin-left: auto; margin-right: auto;">免費版就能體驗完整功能，需要更長音檔再升級。</p>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="plan">
+      <h3>Free</h3>
+      <p style="font-family: var(--font-body); font-size: 13px; color: var(--fg-2); margin: 0;">適合先試用、個人小作品</p>
+      <div class="price">NT$0<small>/月</small></div>
+      <div class="price-sub">每月 30 分鐘音檔額度</div>
+      <ul>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>4 款精選聲音預設</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>音檔最長 3 分鐘</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>mp3 240 kbps 下載</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>5 個作品庫存量</li>
+      </ul>
+      <a href="login.html" class="btn btn-ghost plan-cta">免費開始</a>
+    </div>
+
+    <div class="plan featured">
+      <span class="badge">最受歡迎</span>
+      <h3>Pro</h3>
+      <p style="font-family: var(--font-body); font-size: 13px; color: rgba(255,252,247,0.7); margin: 0;">創作者 & 內容團隊</p>
+      <div class="price">NT$299<small>/月</small></div>
+      <div class="price-sub">每月 600 分鐘音檔額度 · 年付 9 折</div>
+      <ul>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>全部 6 款聲音 + 自訂預設</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>音檔最長 60 分鐘</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>wav 高音質下載</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>無限作品庫</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>商業使用授權</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><polyline points="20 6 9 17 4 12"/></svg>優先 AI 算力</li>
+      </ul>
+      <a href="login.html" class="btn btn-render plan-cta">升級 Pro</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section id="cta">
+  <div class="final-cta">
+    <h2>準備好讓你的文字<br/>擁有聲音了嗎？</h2>
+    <p>免費註冊，30 秒就能產出第一個音檔。</p>
+    <a href="login.html" class="btn btn-render btn-lg">
+      <svg width="18" height="18" viewBox="0 0 24 24" class="ico-stroke"><path d="M12 3l1.5 5 5 1.5-5 1.5L12 16l-1.5-5-5-1.5 5-1.5L12 3z"/></svg>
+      開始免費試用
+    </a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="../../assets/logo-mark.svg" width="40" height="40" alt="" />
+      <div class="name">VocalCanvas</div>
+      <p>用 AI 把文字變成有溫度的聲音。多語言支援，為每一段文字找到屬於它的聲音。</p>
+    </div>
+    <div class="footer-col">
+      <h5>產品</h5>
+      <a href="#features">功能介紹</a>
+      <a href="#scenarios">情境模式</a>
+      <a href="#voices">聲音庫</a>
+      <a href="#pricing">方案</a>
+      <a href="#">更新紀錄</a>
+    </div>
+    <div class="footer-col">
+      <h5>資源</h5>
+      <a href="#">使用教學</a>
+      <a href="#">API 文件</a>
+      <a href="#">部落格</a>
+      <a href="#">客服中心</a>
+    </div>
+    <div class="footer-col">
+      <h5>公司</h5>
+      <a href="#">關於我們</a>
+      <a href="#">聯絡我們</a>
+      <a href="#">隱私政策</a>
+      <a href="#">使用條款</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 VocalCanvas. All rights reserved.</span>
+    <span>Made with ❤︎ in Taiwan</span>
+  </div>
+</footer>
+
+<script>
+  // Hero wave random heights
+  const heroWave = document.getElementById('hero-wave');
+  const wave = [];
+  for (let i = 0; i < 32; i++) {
+    const h = 30 + Math.sin(i * 0.45) * 30 + Math.sin(i * 0.15) * 20;
+    wave.push(Math.max(20, Math.min(110, Math.round(h))));
+  }
+  heroWave.innerHTML = wave.map((h, i) => `<span style="height: ${h}px; animation-delay: ${i * 0.06}s;"></span>`).join('');
+
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 12);
+  });
+
+  // Lang switch
+  document.querySelectorAll('.lang-switch button').forEach(b => {
+    b.addEventListener('click', () => {
+      b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
