@@ -2,23 +2,29 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 type FormState = 'form' | 'success';
 
 export default function ForgotPage(): React.JSX.Element {
+  const { resetPassword } = useAuth();
   const [formState, setFormState] = useState<FormState>('form');
   const [email, setEmail] = useState('');
+  const [sentEmail, setSentEmail] = useState('');
   const [resent, setResent] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setFormState('success');
-  }
-
-  function handleResend(e: React.MouseEvent<HTMLAnchorElement>): void {
-    e.preventDefault();
-    setResent(true);
-  }
+    try {
+      await resetPassword(email);
+      setSentEmail(email);
+      setFormState('success');
+    } catch {
+      // Still show success (don't reveal if email exists -- security best practice)
+      setSentEmail(email);
+      setFormState('success');
+    }
+  };
 
   if (formState === 'success') {
     return (
@@ -39,7 +45,7 @@ export default function ForgotPage(): React.JSX.Element {
           <h1>信件已寄出 ✉︎</h1>
           <p className="sub">
             重設密碼的連結已寄到{' '}
-            <b style={{ color: 'var(--fg-1)' }}>{email || 'you@example.com'}</b>。<br />
+            <b style={{ color: 'var(--fg-1)' }}>{sentEmail || 'you@example.com'}</b>。<br />
             連結 30 分鐘內有效，記得查看你的收件匣（也檢查垃圾信件夾）。
           </p>
 
@@ -52,7 +58,18 @@ export default function ForgotPage(): React.JSX.Element {
             {resent ? (
               <span style={{ fontWeight: 600, color: 'var(--mint-600)' }}>已重新寄送</span>
             ) : (
-              <a href="#" onClick={handleResend}>重新寄送</a>
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await resetPassword(sentEmail);
+                    setResent(true);
+                  } catch {
+                    // silently ignore
+                  }
+                }}
+              >重新寄送</a>
             )}
           </div>
         </div>

@@ -15,7 +15,7 @@ const LOGIN_WAVE_HEIGHTS: number[] = Array.from({ length: 22 }, (_, i) => {
 
 export default function LoginPage(): React.JSX.Element {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle, setStaySignedIn } = useAuth();
   const [lang, setLang] = useState<Lang>('zh');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,12 +29,14 @@ export default function LoginPage(): React.JSX.Element {
 
   const isZh = lang === 'zh';
 
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    const ok = login(email, password);
-    if (ok) {
+    try {
+      await login(email, password);
       router.push('/library');
-    } else {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error('[login] handleSubmit failed:', message);
       setError(isZh ? '帳號或密碼錯誤' : 'Invalid credentials');
     }
   };
@@ -112,7 +114,14 @@ export default function LoginPage(): React.JSX.Element {
 
           {/* OAuth */}
           <div className="oauth-row">
-            <button className="oauth-btn" type="button">
+            <button className="oauth-btn" type="button" onClick={async () => {
+              try {
+                await loginWithGoogle();
+                router.push('/library');
+              } catch (err) {
+                setError(isZh ? 'Google 登入失敗' : 'Google sign-in failed');
+              }
+            }}>
               <svg width={20} height={20} viewBox="0 0 48 48">
                 <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
                 <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.4 6.3 14.7z" />
@@ -176,7 +185,7 @@ export default function LoginPage(): React.JSX.Element {
             )}
             <div className="field-row">
               <label className="checkbox-row">
-                <input type="checkbox" />
+                <input type="checkbox" onChange={(e) => setStaySignedIn(e.target.checked)} />
                 <span>{isZh ? '保持登入' : 'Stay signed in'}</span>
               </label>
               <Link href="/forgot" className="forgot">

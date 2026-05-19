@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLang } from '@/contexts/LangContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase';
+import { doc, updateDoc, increment } from 'firebase/firestore';
 // rendering state 由 LangContext 統一管理，overlay 渲染在 AppShell .main 層
 import Steps from '@/components/ui/Steps';
 import Slider from '@/components/ui/Slider';
@@ -243,6 +246,7 @@ interface ScriptEditorScreenProps {
 
 function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScreenProps): React.JSX.Element {
   const { lang, setRendering } = useLang();
+  const { user } = useAuth();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
   const script = state.script;
   const [editingTag, setEditingTag] = useState<number | null>(null);
@@ -274,13 +278,41 @@ function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScr
   const voice = state.voice;
   const presetInfo = voice.preset ? PRESETS.find((p) => p.id === voice.preset) : null;
 
-  const startRender = (): void => {
-    // rendering overlay 在 AppShell .main 層渲染，覆蓋範圍包含 topbar
+  const startRender = async (): Promise<void> => {
     setRendering(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script: state.script,
+          voice: state.voice,
+          lang,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'TTS failed');
+      // Convert base64 to blob URL
+      const bytes = Uint8Array.from(atob(data.audio), (c) => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
+      // Track usage in Firestore
+      if (user) {
+        const estSeconds = Math.max(8, Math.round(totalChars * 0.15 + totalDelay));
+        await updateDoc(doc(db, 'users', user.id), {
+          'usage.rendered': increment(estSeconds),
+          'usage.takes': increment(1),
+        });
+      }
+      // Store audioUrl via custom event (picked up by NewCanvasPage)
+      window.dispatchEvent(new CustomEvent('vc-audio-ready', { detail: { audioUrl: url } }));
+    } catch (err) {
+      console.error('[tts] render failed:', err);
+      alert(lang === 'zh' ? '音檔產出失敗，請重試' : 'Audio render failed, please try again');
+    } finally {
       setRendering(false);
       onNext();
-    }, 2400);
+    }
   };
 
   return (
@@ -422,25 +454,63 @@ interface PreviewScreenProps {
   state: AppState;
   bgmTrack: string;
   bgmVolume: number;
+  audioUrl: string;
   onBack: () => void;
   onDone: () => void;
 }
 
-function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewScreenProps): React.JSX.Element {
+function PreviewScreen({ state, bgmTrack, bgmVolume, audioUrl, onBack, onDone }: PreviewScreenProps): React.JSX.Element {
   const { lang } = useLang();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
-  const [playing, setPlaying] = useState(true);
-  const [progress, setProgress] = useState(0.3);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [fav, setFav] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const presetInfo = state.voice.preset ? PRESETS.find((p) => p.id === state.voice.preset) : null;
   const voiceName = presetInfo
     ? `${presetInfo.zh} · ${presetInfo.en}`
     : state.voice.gender === 'male' ? t('男聲', 'Male') : t('女聲', 'Female');
 
+  // Create/update audio element when audioUrl changes
   useEffect(() => {
+    if (!audioUrl) return;
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+
+    audio.addEventListener('loadedmetadata', () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        setAudioDuration(audio.duration);
+      }
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        setProgress(audio.currentTime / audio.duration);
+        setAudioCurrentTime(audio.currentTime);
+        setAudioDuration(audio.duration);
+      }
+    });
+    audio.addEventListener('ended', () => {
+      setPlaying(false);
+      setProgress(1);
+    });
+
+    // Auto-play on mount
+    audio.play().then(() => setPlaying(true)).catch(() => {});
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+    };
+  }, [audioUrl]);
+
+  // Fallback: simulated playback when no audioUrl
+  useEffect(() => {
+    if (audioUrl) return;
     if (!playing) return;
     const interval = setInterval(() => {
       setProgress((p) => {
@@ -449,12 +519,49 @@ function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewSc
       });
     }, 50);
     return () => clearInterval(interval);
-  }, [playing, speed]);
+  }, [audioUrl, playing, speed]);
 
-  const totalSec = 68;
-  const cur = Math.floor(progress * totalSec);
+  // Wire play/pause to real audio
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }, [playing]);
+
+  // Wire speed to playbackRate
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
+
+  // Skip functions
+  const skipForward = (): void => {
+    const audio = audioRef.current;
+    if (audio && audio.duration && isFinite(audio.duration)) {
+      audio.currentTime = Math.min(audio.duration, audio.currentTime + audio.duration * 0.1);
+    } else {
+      setProgress((p) => Math.min(1, p + 0.1));
+    }
+  };
+  const skipBack = (): void => {
+    const audio = audioRef.current;
+    if (audio && audio.duration && isFinite(audio.duration)) {
+      audio.currentTime = Math.max(0, audio.currentTime - audio.duration * 0.1);
+    } else {
+      setProgress((p) => Math.max(0, p - 0.1));
+    }
+  };
+
+  // Time display
+  const totalSec = audioUrl ? audioDuration : 68;
+  const cur = audioUrl ? audioCurrentTime : Math.floor(progress * 68);
   const fmt = (s: number): string =>
-    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
   const waveform = useMemo(() =>
     Array.from({ length: 80 }, (_, i) => {
@@ -504,13 +611,13 @@ function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewSc
         </div>
 
         <div className="pb-row">
-          <button className="pb-btn-sm" onClick={() => setProgress(Math.max(0, progress - 0.1))}>
+          <button className="pb-btn-sm" onClick={skipBack}>
             <IconSkipBack size={18} />
           </button>
           <button className="pb-btn-big" onClick={() => setPlaying(!playing)}>
             {playing ? <IconPause size={26} /> : <IconPlay size={26} />}
           </button>
-          <button className="pb-btn-sm" onClick={() => setProgress(Math.min(1, progress + 0.1))}>
+          <button className="pb-btn-sm" onClick={skipForward}>
             <IconSkipForward size={18} />
           </button>
 
@@ -520,7 +627,7 @@ function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewSc
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span className="pb-time">{fmt(cur)}</span>
-              <span className="pb-time">−{fmt(totalSec - cur)}</span>
+              <span className="pb-time">−{fmt(Math.max(0, totalSec - cur))}</span>
             </div>
           </div>
 
@@ -588,7 +695,13 @@ function PreviewScreen({ state, bgmTrack, bgmVolume, onBack, onDone }: PreviewSc
         </button>
 
         {/* Download card */}
-        <button className="card" style={{ cursor: 'pointer', textAlign: 'left' }}>
+        <button className="card" style={{ cursor: 'pointer', textAlign: 'left' }} onClick={() => {
+          if (!audioUrl) return;
+          const a = document.createElement('a');
+          a.href = audioUrl;
+          a.download = 'vocalcanvas-take.mp3';
+          a.click();
+        }}>
           <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--cream-200)', color: 'var(--fg-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <IconDownload size={20} />
           </div>
@@ -620,6 +733,17 @@ export default function NewCanvasPage(): React.JSX.Element {
   const [bgmTrack, setBgmTrack] = useState<string>('none');
   const [bgmVolume, setBgmVolume] = useState<number>(0);
   const [bgmExpanded, setBgmExpanded] = useState<boolean>(false);
+  const [audioUrl, setAudioUrl] = useState<string>('');
+
+  // Listen for audio ready event from ScriptEditorScreen
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.audioUrl) setAudioUrl(detail.audioUrl);
+    };
+    window.addEventListener('vc-audio-ready', handler);
+    return () => window.removeEventListener('vc-audio-ready', handler);
+  }, []);
 
   const goNext = (): void => setStep((s) => Math.min(2, s + 1) as Step);
   const goBack = (): void => setStep((s) => Math.max(0, s - 1) as Step);
@@ -659,6 +783,7 @@ export default function NewCanvasPage(): React.JSX.Element {
       state={appState}
       bgmTrack={bgmTrack}
       bgmVolume={bgmVolume}
+      audioUrl={audioUrl}
       onBack={goBack}
       onDone={() => router.push('/library')}
     />

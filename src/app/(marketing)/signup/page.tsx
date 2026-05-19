@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Lang = 'zh' | 'en';
 
@@ -12,7 +14,14 @@ const SIGNUP_WAVE_HEIGHTS: number[] = Array.from({ length: 22 }, (_, i) => {
 });
 
 export default function SignupPage(): React.JSX.Element {
+  const { signup, loginWithGoogle } = useAuth();
+  const router = useRouter();
   const [lang, setLang] = useState<Lang>('zh');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [agreed, setAgreed] = useState(false);
 
   // 語言切換時同步更新 document title
   useEffect(() => {
@@ -21,6 +30,27 @@ export default function SignupPage(): React.JSX.Element {
   }, [lang]);
 
   const isZh = lang === 'zh';
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!agreed) {
+      setError(isZh ? '請先同意使用條款' : 'Please agree to the terms');
+      return;
+    }
+    try {
+      await signup(name, email, password);
+      router.push('/library');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '';
+      if (message.includes('email-already-in-use')) {
+        setError(isZh ? '此 Email 已被註冊' : 'Email already in use');
+      } else if (message.includes('weak-password')) {
+        setError(isZh ? '密碼至少 6 個字元' : 'Password must be at least 6 characters');
+      } else {
+        setError(isZh ? '註冊失敗，請重試' : 'Sign up failed, please try again');
+      }
+    }
+  };
 
   return (
     <div className="login-page">
@@ -135,7 +165,18 @@ export default function SignupPage(): React.JSX.Element {
 
           {/* OAuth */}
           <div className="oauth-row">
-            <button className="oauth-btn" type="button">
+            <button
+              className="oauth-btn"
+              type="button"
+              onClick={async () => {
+                try {
+                  await loginWithGoogle();
+                  router.push('/library');
+                } catch {
+                  setError(isZh ? 'Google 註冊失敗' : 'Google sign-up failed');
+                }
+              }}
+            >
               <svg width={20} height={20} viewBox="0 0 48 48">
                 <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
                 <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.4 6.3 14.7z" />
@@ -167,7 +208,7 @@ export default function SignupPage(): React.JSX.Element {
             <span>{isZh ? '或使用 Email' : 'or use email'}</span>
           </div>
 
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={handleSubmit}>
             <div className="field">
               <label htmlFor="name">{isZh ? '姓名' : 'Name'}</label>
               <input
@@ -175,6 +216,8 @@ export default function SignupPage(): React.JSX.Element {
                 id="name"
                 placeholder={isZh ? '你的名字' : 'Your name'}
                 autoComplete="name"
+                value={name}
+                onChange={(e) => { setName(e.target.value); setError(''); }}
               />
             </div>
             <div className="field">
@@ -184,6 +227,8 @@ export default function SignupPage(): React.JSX.Element {
                 id="email"
                 placeholder="you@example.com"
                 autoComplete="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
               />
             </div>
             <div className="field">
@@ -193,6 +238,8 @@ export default function SignupPage(): React.JSX.Element {
                 id="password"
                 placeholder={isZh ? '至少 8 個字元' : 'At least 8 characters'}
                 autoComplete="new-password"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(''); }}
               />
               <span
                 style={{
@@ -205,8 +252,13 @@ export default function SignupPage(): React.JSX.Element {
                 {isZh ? '至少 8 個字元，包含英文與數字' : 'At least 8 characters, including letters and numbers'}
               </span>
             </div>
+            {error && (
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#d94f4f', marginBottom: 4 }}>
+                {error}
+              </div>
+            )}
             <label className="checkbox-row" style={{ margin: '16px 0 20px' }}>
-              <input type="checkbox" />
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
               <span>
                 {isZh ? '我同意 ' : 'I agree to the '}
                 <a href="#" className="forgot" style={{ textDecoration: 'underline' }}>

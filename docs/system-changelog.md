@@ -4,6 +4,42 @@
 
 ## 2026-05-19
 
+### 22:00 — v1.0.0 Firebase 全面整合（Phase 1-7）
+
+- **更新內容**：
+  VocalCanvas 從純前端展示升級為功能完整的全端應用程式，整合 Firebase 生態系與 Google Cloud 服務，涵蓋身份驗證、資料庫、檔案儲存、語音合成與付款系統。以下按階段說明：
+
+  **Phase 1：Firebase Auth 身份驗證**
+  以 Firebase Auth 取代原有的模擬身份驗證（Mock Auth），支援 Email/Password 登入、Google OAuth 登入、新用戶註冊（含發送驗證信）、忘記密碼（Firebase `sendPasswordResetEmail`）。新增三態認證模型（`loading` / `authenticated` / `unauthenticated`），解決初始化期間 Auth Guard 誤跳轉的閃爍問題。首次登入時自動在 Firestore `users/{uid}` 建立使用者文件，包含 name、email、plan、preferences、usage 等欄位。支援「保持登入」切換（`browserLocalPersistence` / `browserSessionPersistence`）。
+
+  **Phase 2：作品庫 CRUD（Library）**
+  新增 `src/hooks/useLibrary.ts`，以 Firestore 子集合 `users/{uid}/library` 儲存作品，透過 `onSnapshot` 即時監聽實現 real-time 同步。提供 `addItem`、`toggleFavorite`、`renameItem`、`deleteItem` 四個 CRUD 操作，所有寫入直接對 Firestore 執行，UI 透過 snapshot listener 自動更新，不需手動管理 local state。Library 頁面改用 `useLibrary` hook 取代原先從 AuthContext 讀取的靜態資料。
+
+  **Phase 3：TTS 語音合成核心**
+  新增 `/api/tts` API Route，整合 Google Cloud Text-to-Speech。前端將 ScriptNode 陣列、聲音參數與語言送至 API，API 將 script 轉為 SSML（`<speak>` + `<break>` 標籤），將前端 0-100 拉桿值映射為 Google TTS 的 pitch（半音）與 speakingRate，依語言與性別選擇對應的聲音模型（中文 Standard / 英文 Neural2）。回傳 base64 編碼的 MP3 音訊。
+
+  **Phase 4：真實音訊播放器**
+  以 HTML5 `Audio` 物件取代原先的 setInterval 模擬播放。支援真實的播放/暫停、快進/快退（調整 `currentTime`）、變速播放（`playbackRate`：0.5x 到 2x）、下載音訊檔案。進度條透過 `ontimeupdate` 事件即時更新。
+
+  **Phase 5：帳號管理**
+  Account 頁面實作完整的個人資料管理：修改姓名（Firebase Auth `updateProfile` + Firestore 同步）、上傳頭像（Firebase Storage `avatars/{uid}/`）、修改密碼（`updatePassword`）、Google 帳號連結/解除連結（`linkWithPopup` / `unlink`）。偏好設定（語言、輸出格式、通知）持久化至 Firestore `users/{uid}.preferences`。提供帳號刪除功能（含 Firestore 文件、Storage 檔案、Auth 帳號完整清除）。
+
+  **Phase 6：使用量追蹤與聲音預覽**
+  每次 TTS 渲染完成後，自動累加 Firestore `usage.rendered`（秒數）與 `usage.takes`（次數），Account 頁面顯示已使用分鐘數 / 方案上限的進度條。Voices 頁面的試聽按鈕改為呼叫 TTS API 產生真實語音片段。
+
+  **Phase 7：Lemon Squeezy 付款整合**
+  新增 `/api/checkout` API Route，以 Lemon Squeezy REST API 建立 Checkout Session（帶 `custom_data.user_id`），回傳結帳頁面 URL。新增 `/api/webhooks/lemonsqueezy` Webhook 接收端，以 HMAC-SHA256 驗證簽章（`crypto.timingSafeEqual` 防止 timing attack），處理 `subscription_created`、`subscription_resumed`（升級 Pro，配額 240 分鐘）、`subscription_cancelled`、`subscription_expired`（降級 Free，配額 30 分鐘）等事件，透過 Firebase Admin SDK 直接更新 Firestore。
+
+  **基礎設施**
+  新增 `src/lib/firebase.ts`（Client SDK 初始化：auth / db / storage）與 `src/lib/firebase-admin.ts`（Admin SDK 初始化：adminAuth / adminDb / adminStorage）。新增 `firestore.rules`（owner-only 讀寫，預設拒絕）、`storage.rules`（音訊與頭像 owner-only，頭像限 5MB 圖片，BGM 公開讀取）、`firebase.json`（Firebase CLI 設定）。環境變數新增 `NEXT_PUBLIC_FIREBASE_*`（6 個）、`GOOGLE_APPLICATION_CREDENTIALS`、`GOOGLE_CLOUD_PROJECT_ID`、`LEMONSQUEEZY_API_KEY`、`LEMONSQUEEZY_STORE_ID`、`LEMONSQUEEZY_PRO_VARIANT_ID`、`LEMONSQUEEZY_WEBHOOK_SECRET`。
+
+- **更新檔案**：
+  `src/lib/firebase.ts`、`src/lib/firebase-admin.ts`、`src/contexts/AuthContext.tsx`、`src/hooks/useLibrary.ts`、`src/app/api/tts/route.ts`、`src/app/api/checkout/route.ts`、`src/app/api/webhooks/lemonsqueezy/route.ts`、`src/app/(marketing)/login/page.tsx`、`src/app/(marketing)/signup/page.tsx`、`src/app/(marketing)/forgot/page.tsx`、`src/app/(app)/layout.tsx`、`src/app/(app)/library/page.tsx`、`src/app/(app)/new/page.tsx`、`src/app/(app)/voices/page.tsx`、`src/app/(app)/settings/page.tsx`、`src/app/(app)/account/page.tsx`、`src/components/app/AppShell.tsx`、`firestore.rules`、`storage.rules`、`firebase.json`、`package.json`
+
+- **Git 紀錄**：`a799067`
+
+---
+
 ### 16:30 — v0.4.0 新增：情境快選（Scenarios）+ 背景音樂（BGM）
 
 - **更新內容**：

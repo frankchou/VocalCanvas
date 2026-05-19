@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLang } from '@/contexts/LangContext';
 import { IconPlay } from '@/components/ui/Icons';
@@ -42,6 +42,44 @@ export default function VoicesPage(): React.JSX.Element {
   const { lang } = useLang();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
   const [genderFilter, setGenderFilter] = useState<GenderFilter>('all');
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handlePreview = async (voice: Voice) => {
+    if (previewingId === voice.id) {
+      // Stop current preview
+      audioRef.current?.pause();
+      setPreviewingId(null);
+      return;
+    }
+    setPreviewingId(voice.id);
+    try {
+      const sampleText = lang === 'zh'
+        ? '歡迎來到 VocalCanvas，讓你的文字擁有聲音。'
+        : 'Welcome to VocalCanvas. Give your words a voice.';
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script: [{ type: 'text', value: sampleText }],
+          voice: { gender: voice.gender, age: 50, pitch: 50, timbre: 30, preset: voice.id },
+          lang: lang === 'zh' ? 'zh' : 'en',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const bytes = Uint8Array.from(atob(data.audio), (c) => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
+      if (audioRef.current) { audioRef.current.pause(); }
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.addEventListener('ended', () => setPreviewingId(null));
+      await audio.play();
+    } catch {
+      setPreviewingId(null);
+    }
+  };
 
   const filtered = genderFilter === 'all'
     ? ALL_VOICES
@@ -99,9 +137,9 @@ export default function VoicesPage(): React.JSX.Element {
               {v.desc}
             </p>
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button className="btn btn-ghost btn-sm" style={{ flex: 1 }}>
+              <button className="btn btn-ghost btn-sm" style={{ flex: 1 }} onClick={() => handlePreview(v)}>
                 <IconPlay size={14} />
-                {t('試聽', 'Preview')}
+                {previewingId === v.id ? t('停止', 'Stop') : t('試聽', 'Preview')}
               </button>
               <button
                 className="btn btn-primary btn-sm"

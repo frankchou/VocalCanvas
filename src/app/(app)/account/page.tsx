@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useLang } from '@/contexts/LangContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { IconChevronLeft, IconCheck } from '@/components/ui/Icons';
+import { auth, db, storage } from '@/lib/firebase';
+import { updateProfile, updatePassword, GoogleAuthProvider, linkWithPopup, unlink } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function AccountPage(): React.JSX.Element {
   const router = useRouter();
@@ -16,6 +20,60 @@ export default function AccountPage(): React.JSX.Element {
   const email = user?.email ?? '';
   const usage = user?.usage ?? { rendered: 0, total: 600, takes: 0, storage: '0 GB' };
   const avatarLetter = user?.avatar ?? name[0] ?? '?';
+
+  const isGoogleLinked = auth.currentUser?.providerData.some(
+    (p) => p.providerId === 'google.com',
+  ) ?? false;
+
+  const handleSaveName = async () => {
+    if (!auth.currentUser || !user) return;
+    await updateProfile(auth.currentUser, { displayName: name });
+    await updateDoc(doc(db, 'users', user.id), { name });
+    alert(t('已儲存', 'Saved'));
+  };
+
+  const handleAvatarUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file || !user || !auth.currentUser) return;
+      const storageRef = ref(storage, `avatars/${user.id}/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      await updateProfile(auth.currentUser, { photoURL: url });
+      await updateDoc(doc(db, 'users', user.id), { avatarUrl: url });
+      alert(t('頭像已更新', 'Avatar updated'));
+    };
+    input.click();
+  };
+
+  const handleChangePassword = async () => {
+    const newPw = window.prompt(t('請輸入新密碼', 'Enter new password'));
+    if (!newPw || !auth.currentUser) return;
+    try {
+      await updatePassword(auth.currentUser, newPw);
+      alert(t('密碼已更新', 'Password updated'));
+    } catch {
+      alert(t('請重新登入後再試', 'Please re-login and try again'));
+    }
+  };
+
+  const handleGoogleLink = async () => {
+    if (!auth.currentUser) return;
+    try {
+      if (isGoogleLinked) {
+        await unlink(auth.currentUser, 'google.com');
+        alert(t('已取消連結 Google', 'Google unlinked'));
+      } else {
+        await linkWithPopup(auth.currentUser, new GoogleAuthProvider());
+        alert(t('已連結 Google', 'Google linked'));
+      }
+    } catch {
+      alert(t('操作失敗，請稍後再試', 'Operation failed, please try again'));
+    }
+  };
 
   return (
     <div className="screen">
@@ -45,7 +103,7 @@ export default function AccountPage(): React.JSX.Element {
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{t('頭像', 'Avatar')}</div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn btn-ghost btn-sm">{t('上傳新圖', 'Upload')}</button>
+                  <button className="btn btn-ghost btn-sm" onClick={handleAvatarUpload}>{t('上傳新圖', 'Upload')}</button>
                   <button className="btn btn-sm" style={{ background: 'transparent', color: 'var(--fg-2)' }}>{t('移除', 'Remove')}</button>
                 </div>
               </div>
@@ -80,7 +138,7 @@ export default function AccountPage(): React.JSX.Element {
               </div>
             </div>
 
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>{t('儲存變更', 'Save changes')}</button>
+            <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSaveName}>{t('儲存變更', 'Save changes')}</button>
           </div>
         </div>
 
@@ -93,7 +151,7 @@ export default function AccountPage(): React.JSX.Element {
               <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 14 }}>{t('密碼', 'Password')}</div>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--fg-2)', marginTop: 2 }}>{t('上次更新 3 個月前', 'Updated 3 months ago')}</div>
             </div>
-            <button className="btn btn-ghost btn-sm">{t('變更密碼', 'Change')}</button>
+            <button className="btn btn-ghost btn-sm" onClick={handleChangePassword}>{t('變更密碼', 'Change')}</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--line-1)' }}>
@@ -119,7 +177,11 @@ export default function AccountPage(): React.JSX.Element {
                   <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13 }}>Google</div>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--fg-2)' }}>frank@gmail.com</div>
                 </div>
-                <span className="chip mint">{t('已連結', 'Connected')}</span>
+                {isGoogleLinked ? (
+                  <button className="chip mint" onClick={handleGoogleLink} style={{ cursor: 'pointer', border: 'none' }}>{t('已連結', 'Connected')}</button>
+                ) : (
+                  <button className="btn btn-ghost btn-sm" onClick={handleGoogleLink}>{t('連結', 'Connect')}</button>
+                )}
               </div>
               {/* LINE */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'var(--cream-100)', borderRadius: 12 }}>

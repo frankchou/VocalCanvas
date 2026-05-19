@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLang } from '@/contexts/LangContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLibrary } from '@/hooks/useLibrary';
 import {
   IconPlus,
   IconPlay,
@@ -28,19 +28,18 @@ export default function LibraryPage(): React.JSX.Element {
   const { user } = useAuth();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
 
-  const items = user?.library ?? [];
+  const { items, loading, toggleFavorite } = useLibrary(user?.id);
+  const favCount = items.filter((i) => i.favorite).length;
 
-  const [favorites, setFavorites] = useState<Set<string>>(
-    () => new Set(items.filter((i) => i.favorite).map((i) => i.id))
-  );
-
-  const toggleFav = (id: string): void => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
+  if (loading) {
+    return (
+      <div className="screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+        <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--fg-2)' }}>
+          {t('載入中...', 'Loading...')}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen">
@@ -49,8 +48,8 @@ export default function LibraryPage(): React.JSX.Element {
           <h1>{t('我的作品', 'Your library')}</h1>
           <div className="sub">
             {t(
-              `${items.length} 個音檔 · ${favorites.size} 個收藏`,
-              `${items.length} takes · ${favorites.size} favorites`
+              `${items.length} 個音檔 · ${favCount} 個收藏`,
+              `${items.length} takes · ${favCount} favorites`
             )}
           </div>
         </div>
@@ -61,7 +60,6 @@ export default function LibraryPage(): React.JSX.Element {
       </div>
 
       {items.length === 0 ? (
-        // 空狀態
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '80px 24px', textAlign: 'center' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--cream-200)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <IconPlay size={28} />
@@ -93,7 +91,6 @@ export default function LibraryPage(): React.JSX.Element {
                 <div className="sub">
                   <span className="voice-chip">{item.voice}</span>
                   <span>{item.duration}</span>
-                  <span>{item.sub.split('·').pop()?.trim()}</span>
                   <span>{item.date}</span>
                 </div>
               </div>
@@ -102,11 +99,11 @@ export default function LibraryPage(): React.JSX.Element {
                   <IconPlay size={18} />
                 </button>
                 <button
-                  className={`iconbtn ${favorites.has(item.id) ? 'fav' : ''}`}
-                  onClick={() => toggleFav(item.id)}
+                  className={`iconbtn ${item.favorite ? 'fav' : ''}`}
+                  onClick={() => toggleFavorite(item.id, item.favorite)}
                   title="Favorite"
                 >
-                  {favorites.has(item.id) ? <IconHeartFill size={18} /> : <IconHeart size={18} />}
+                  {item.favorite ? <IconHeartFill size={18} /> : <IconHeart size={18} />}
                 </button>
                 <button className="iconbtn" title="Download"><IconDownload size={18} /></button>
                 <button className="iconbtn" title="More"><IconMore size={18} /></button>

@@ -1,6 +1,6 @@
 # VocalCanvas 系統架構
 
-> 本文件描述系統現況（截至 2026-05-19，v0.4.0），與程式碼保持同步。
+> 本文件描述系統現況（截至 2026-05-19，v1.0.0），與程式碼保持同步。
 
 ---
 
@@ -14,8 +14,13 @@
 | 字型載入 | next/font/google | — |
 | 樣式 | 全域 CSS 變數 + 頁面層 CSS | — |
 | 路由 | Next.js App Router (Route Groups) | — |
-| 狀態管理 | React useState / useContext | — |
+| 狀態管理 | React useState / useContext + Firestore | — |
 | 圖片 | Next.js `<Image>` | — |
+| 身份驗證 | Firebase Auth（Email/Password、Google OAuth） | — |
+| 資料庫 | Cloud Firestore | — |
+| 檔案儲存 | Firebase Storage | — |
+| 語音合成 | Google Cloud Text-to-Speech（Neural2） | — |
+| 付款 | Lemon Squeezy（Checkout + Webhooks） | — |
 
 ### 1.1 字型
 
@@ -48,18 +53,27 @@ src/app/
 │   └── forgot/
 │       └── page.tsx              → URL: /forgot    忘記密碼頁
 │
-└── (app)/                        ← Route Group：App 工作區
-    ├── layout.tsx                → 套用 app.css，render <AppShell>
-    ├── library/
-    │   └── page.tsx              → URL: /library   作品庫
-    ├── new/
-    │   └── page.tsx              → URL: /new        New Canvas Wizard
-    ├── voices/
-    │   └── page.tsx              → URL: /voices     聲音庫
-    ├── settings/
-    │   └── page.tsx              → URL: /settings  帳號/偏好/通知設定
-    └── account/
-        └── page.tsx              → URL: /account   個人資料 + 安全性 + 使用量
+├── (app)/                        ← Route Group：App 工作區
+│   ├── layout.tsx                → 套用 app.css，render <AppShell>
+│   ├── library/
+│   │   └── page.tsx              → URL: /library   作品庫
+│   ├── new/
+│   │   └── page.tsx              → URL: /new        New Canvas Wizard
+│   ├── voices/
+│   │   └── page.tsx              → URL: /voices     聲音庫
+│   ├── settings/
+│   │   └── page.tsx              → URL: /settings  帳號/偏好/通知設定
+│   └── account/
+│       └── page.tsx              → URL: /account   個人資料 + 安全性 + 使用量
+│
+└── api/                          ← API Routes（Server-side）
+    ├── tts/
+    │   └── route.ts              → POST /api/tts           Google Cloud TTS 語音合成
+    ├── checkout/
+    │   └── route.ts              → POST /api/checkout      Lemon Squeezy 結帳
+    └── webhooks/
+        └── lemonsqueezy/
+            └── route.ts          → POST /api/webhooks/lemonsqueezy  付款 Webhook
 ```
 
 > **建置確認（v0.2.1）：** `next build` 靜態產生 11 條路由（含 Next.js 內部的 `/_not-found`），TypeScript 無錯誤，全部為 Static（○）頁面。
@@ -111,7 +125,7 @@ RootLayout (src/app/layout.tsx)
         │
         ├── LoginPage (src/app/(marketing)/login/page.tsx)
         │   ├── aside.login-brand（波形動畫、引言）
-        │   └── main.login-form（OAuth buttons + Email form，串接 AuthContext.login()）
+        │   └── main.login-form（OAuth buttons + Email form，串接 AuthContext.login() / loginWithGoogle()）
         │
         └── AppLayout (src/app/(app)/layout.tsx)  ← Auth Guard：未登入跳轉 /login
             └── AppShell (src/components/app/AppShell.tsx)
@@ -128,7 +142,7 @@ RootLayout (src/app/layout.tsx)
                 │   └── Lang Switch（中文 / English）
                 └── children（各 App 頁面）
                     ├── LibraryPage (src/app/(app)/library/page.tsx)
-                    │   └── lib-list（來自 AuthContext.user，動態顯示；empty 帳號顯示空態）
+                    │   └── lib-list（來自 useLibrary hook，Firestore 即時同步；無作品時顯示空態）
                     ├── NewCanvasPage (src/app/(app)/new/page.tsx)
                     │   ├── VoiceSetupScreen (Step 0)
                     │   │   ├── ScenarioSelector (src/components/app/ScenarioSelector.tsx)
@@ -193,17 +207,22 @@ RootLayout (src/app/layout.tsx)
 
 `AuthContext`（`src/contexts/AuthContext.tsx`）提供全站的使用者身份驗證狀態，由 `AuthProviderWrapper`（`src/components/AuthProviderWrapper.tsx`）包在 Root Layout 最外層，行銷區與 App 區皆可存取：
 
-- `AuthProvider`：持有 `user: User | null` 狀態，初始化時從 `sessionStorage` 讀取已儲存的 session。
-- `useAuth()` hook：對外暴露 `{ user, login, logout }`，任何 Client Component 均可呼叫。
-- `login(email, password)`：核對內建測試帳號，成功後將 user 資料寫入 `sessionStorage` 並更新 state；失敗則拋出錯誤訊息。
-- `logout()`：清除 `sessionStorage` 中的 session，將 `user` 設為 `null`。
+- `AuthProvider`：持有 `user: AppUser | null` 與 `authState: 'loading' | 'authenticated' | 'unauthenticated'` 三態模型。初始化時透過 Firebase `onAuthStateChanged` 監聽登入狀態，並從 Firestore `users/{uid}` 文件讀取使用者資料。
+- `useAuth()` hook：對外暴露 `{ user, authState, login, signup, loginWithGoogle, logout, resetPassword, setStaySignedIn }`。
+- `login(email, password)`：呼叫 Firebase `signInWithEmailAndPassword`，由 `onAuthStateChanged` 回呼自動更新 user state。
+- `signup(name, email, password)`：呼叫 `createUserWithEmailAndPassword`，設定 displayName，發送驗證信，並在 Firestore 建立使用者文件。
+- `loginWithGoogle()`：呼叫 `signInWithPopup(GoogleAuthProvider)`，若為首次登入則自動在 Firestore 建立使用者文件。
+- `logout()`：呼叫 Firebase `signOut`，`onAuthStateChanged` 回呼將 user 設為 `null`。
+- `resetPassword(email)`：呼叫 Firebase `sendPasswordResetEmail`。
+- `setStaySignedIn(stay)`：切換 Firebase 持久化模式（`browserLocalPersistence` / `browserSessionPersistence`）。
 
-內建兩組測試帳號：
+### 5.0.1 作品庫狀態（useLibrary hook）
 
-| Email | 密碼 | 帳號特性 |
-|-------|------|---------|
-| `demo@vocalcanvas.com` | `Demo1234` | 完整示範資料：5 筆作品庫、使用量統計 |
-| `empty@vocalcanvas.com` | `Demo1234` | 空白狀態：無作品、使用量為 0 |
+`useLibrary`（`src/hooks/useLibrary.ts`）提供作品庫的即時 CRUD 功能：
+
+- 透過 Firestore `onSnapshot` 即時監聽 `users/{uid}/library` 子集合，按 `createdAt` 降序排列。
+- 對外暴露 `{ items, loading, toggleFavorite, deleteItem, renameItem, addItem }`。
+- 所有寫入操作（toggle、delete、rename、add）直接操作 Firestore，UI 透過 snapshot listener 自動更新。
 
 ### 5.1 語言狀態與 Rendering 狀態（App 區）
 
@@ -246,7 +265,7 @@ interface AppState {
 
 | 頁面 / 元件 | State | 說明 |
 |------------|-------|------|
-| `LibraryPage` | `favorites: Set<string>` | 收藏作品 id 集合 |
+| `LibraryPage` | `useLibrary(uid)` | 作品庫即時同步（Firestore onSnapshot） |
 | `VoicesPage` | `genderFilter: 'all' \| 'male' \| 'female'` | 聲音庫篩選條件 |
 | `PreviewScreen` | `playing`, `progress`, `speed`, `fav`, `saved` | 播放器狀態 |
 | `AppShellInner` | `collapsed`, `mobileOpen` | Sidebar 展開/收合、mobile drawer 開關 |
@@ -298,13 +317,18 @@ src/styles/
 │   │   │   ├── login/page.tsx         登入頁
 │   │   │   ├── signup/page.tsx        新用戶註冊頁
 │   │   │   └── forgot/page.tsx        忘記密碼頁
-│   │   └── (app)/                     App 區 Route Group
-│   │       ├── layout.tsx             App Layout（AppShell wrapper）
-│   │       ├── library/page.tsx       作品庫頁
-│   │       ├── new/page.tsx           New Canvas Wizard
-│   │       ├── voices/page.tsx        聲音庫頁
-│   │       ├── settings/page.tsx      設定頁
-│   │       └── account/page.tsx       帳號頁
+│   │   ├── (app)/                     App 區 Route Group
+│   │   │   ├── layout.tsx             App Layout（AppShell wrapper）
+│   │   │   ├── library/page.tsx       作品庫頁
+│   │   │   ├── new/page.tsx           New Canvas Wizard
+│   │   │   ├── voices/page.tsx        聲音庫頁
+│   │   │   ├── settings/page.tsx      設定頁
+│   │   │   └── account/page.tsx       帳號頁
+│   │   └── api/                       API Routes
+│   │       ├── tts/route.ts           Google Cloud TTS 語音合成 API
+│   │       ├── checkout/route.ts      Lemon Squeezy 結帳 API
+│   │       └── webhooks/
+│   │           └── lemonsqueezy/route.ts  付款 Webhook 接收端
 │   ├── components/
 │   │   ├── app/
 │   │   │   ├── AppShell.tsx           Sidebar + TopBar 整合元件
@@ -321,8 +345,13 @@ src/styles/
 │   │       ├── Slider.tsx             百分比拉桿
 │   │       ├── Steps.tsx              步驟指示器
 │   │       └── VoicePresets.tsx       預設聲音選擇器
+│   ├── lib/
+│   │   ├── firebase.ts                Firebase Client SDK 初始化（auth / db / storage）
+│   │   └── firebase-admin.ts          Firebase Admin SDK 初始化（伺服器端專用）
+│   ├── hooks/
+│   │   └── useLibrary.ts              作品庫 CRUD hook（Firestore onSnapshot 即時同步）
 │   ├── contexts/
-│   │   ├── AuthContext.tsx            全站身份驗證 Context（user / login / logout）
+│   │   ├── AuthContext.tsx            全站身份驗證 Context（Firebase Auth + Firestore 使用者資料）
 │   │   └── LangContext.tsx            App 區語言 + rendering 全域 Context
 │   └── styles/
 │       ├── design-tokens.css          設計基礎變數
@@ -336,6 +365,9 @@ src/styles/
 │   │   └── logo-mark-mono.svg         單色 Logo 圖標
 │   ├── manifest.json                  Web App Manifest（PWA 設定）
 │   └── icon.svg                       PWA 圖示（同 logo-mark.svg）
+├── firestore.rules                    Firestore 安全規則（owner-only 讀寫）
+├── storage.rules                      Storage 安全規則（owner-only + 頭像大小限制）
+├── firebase.json                      Firebase CLI 設定（指向 rules 檔案）
 ├── package.json
 └── tsconfig.json
 ```
