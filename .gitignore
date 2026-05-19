@@ -20,5 +20,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Claude AI skills / design source files
-.claude/
+# Claude AI config (memory + worktrees, not design assets)
+.claude/projects/
+.claude/worktrees/

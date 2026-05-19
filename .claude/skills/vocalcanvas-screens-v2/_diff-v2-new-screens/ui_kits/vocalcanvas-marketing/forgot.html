@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>忘記密碼 · VocalCanvas</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/logo-mark.svg" />
+  <link rel="stylesheet" href="marketing.css" />
+  <style>
+    .center-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 24px; background: var(--cream-100); }
+    .card-form { background: #fff; border-radius: 28px; padding: 48px; max-width: 440px; width: 100%; box-shadow: var(--shadow-xl); border: 1px solid var(--line-1); }
+    .card-form .logo-row { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .card-form .logo-row .name { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .card-form h1 { font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: -0.02em; margin: 0 0 8px; }
+    .card-form .sub { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--fg-2); margin-bottom: 28px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--fg-2); margin-top: 20px; }
+    .back-link:hover { color: var(--coral-600); }
+
+    .success-state { text-align: center; }
+    .success-state .ico-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--positive-soft);
+      color: var(--mint-600);
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .resend-row { font-family: var(--font-body); font-size: 13px; color: var(--fg-2); margin-top: 18px; }
+    .resend-row a { font-weight: 600; color: var(--coral-600); }
+    .resend-row a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card-form { padding: 32px 24px; border-radius: 22px; }
+      .card-form h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body data-screen-label="VocalCanvas — Forgot password">
+
+<div class="center-page">
+  <div class="card-form" id="form-state">
+    <a href="index.html" class="logo-row" style="color: inherit;">
+      <img src="../../assets/logo-mark.svg" width="32" height="32" alt="" />
+      <span class="name">VocalCanvas</span>
+    </a>
+
+    <h1>忘記密碼了？</h1>
+    <p class="sub">輸入你註冊時用的 Email，我們會寄一封重設密碼的連結給你。</p>
+
+    <form onsubmit="event.preventDefault(); showSuccess();">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required />
+      </div>
+      <button type="submit" class="btn btn-render submit-btn" style="margin-top: 8px;">寄送重設連結</button>
+    </form>
+
+    <a href="login.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" class="ico-stroke"><polyline points="15 18 9 12 15 6"/></svg>
+      回到登入
+    </a>
+  </div>
+
+  <div class="card-form success-state" id="success-state" style="display: none;">
+    <a href="index.html" class="logo-row" style="color: inherit; margin: 0 auto 28px; display: flex; justify-content: center;">
+      <img src="../../assets/logo-mark.svg" width="32" height="32" alt="" />
+      <span class="name">VocalCanvas</span>
+    </a>
+
+    <div class="ico-circle">
+      <svg width="36" height="36" viewBox="0 0 24 24" class="ico-stroke" stroke-width="2"><polyline points="22 6 12 13 2 6"/><path d="M2 6h20v12H2z"/></svg>
+    </div>
+
+    <h1>信件已寄出 ✉︎</h1>
+    <p class="sub">
+      重設密碼的連結已寄到 <b id="user-email" style="color: var(--fg-1);">you@example.com</b>。<br/>
+      連結 30 分鐘內有效，記得查看你的收件匣（也檢查垃圾信件夾）。
+    </p>
+
+    <a href="login.html" class="btn btn-primary submit-btn" style="background: var(--ink-800);">回到登入</a>
+
+    <div class="resend-row">
+      沒收到信？<a href="#" onclick="resend(event)">重新寄送</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSuccess() {
+    const email = document.getElementById('email').value || 'you@example.com';
+    document.getElementById('user-email').textContent = email;
+    document.getElementById('form-state').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+  }
+  function resend(e) {
+    e.preventDefault();
+    e.target.textContent = '已重新寄送';
+    e.target.style.pointerEvents = 'none';
+    e.target.style.color = 'var(--mint-600)';
+  }
+</script>
+
+</body>
+</html>

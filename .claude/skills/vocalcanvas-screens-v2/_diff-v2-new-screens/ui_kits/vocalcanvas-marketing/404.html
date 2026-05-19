@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>找不到頁面 · VocalCanvas</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/logo-mark.svg" />
+  <link rel="stylesheet" href="marketing.css" />
+  <style>
+    body { background: var(--bg); }
+    .error-page {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .error-page::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: var(--grad-sunset);
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .error-content { position: relative; z-index: 1; max-width: 480px; }
+    .err-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-bottom: 56px;
+    }
+    .err-logo .name { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .err-404 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 180px;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      background: var(--grad-sunset);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0 0 16px;
+    }
+    .err-wave {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      height: 60px;
+      align-items: center;
+      margin: 0 0 32px;
+    }
+    .err-wave span {
+      width: 4px;
+      border-radius: 2px;
+      background: var(--coral-500);
+      box-shadow: 0 0 10px rgba(255,90,60,0.3);
+      animation: heroWave 1.8s var(--ease-in-out) infinite;
+    }
+    .err-headline {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 40px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+    }
+    .err-sub {
+      font-family: var(--font-body);
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--fg-2);
+      margin: 0 0 36px;
+    }
+    .err-ctas {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .err-links {
+      margin-top: 56px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line-1);
+    }
+    .err-links .lbl {
+      font-family: var(--font-body); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--fg-2);
+      margin-bottom: 14px;
+    }
+    .err-links a {
+      display: inline-block;
+      font-family: var(--font-body); font-size: 14px; font-weight: 600;
+      color: var(--coral-600);
+      padding: 6px 14px;
+      border-radius: var(--r-pill);
+      background: var(--coral-100);
+      margin: 0 4px 8px;
+      transition: all 140ms var(--ease-out);
+    }
+    .err-links a:hover { background: var(--coral-200); transform: translateY(-1px); }
+
+    @media (max-width: 768px) {
+      .err-404 { font-size: 120px; }
+      .err-headline { font-size: 28px; }
+      .err-sub { font-size: 15px; }
+    }
+  </style>
+</head>
+<body data-screen-label="VocalCanvas — 404">
+
+<div class="error-page">
+  <div class="error-content">
+    <a href="index.html" class="err-logo" style="color: inherit;">
+      <img src="../../assets/logo-mark.svg" width="32" height="32" alt="" />
+      <span class="name">VocalCanvas</span>
+    </a>
+
+    <div class="err-404">404</div>
+
+    <div class="err-wave" id="err-wave"></div>
+
+    <h1 class="err-headline">這裡沒有聲音。</h1>
+    <p class="err-sub">
+      你找的頁面好像走丟了 —<br/>
+      也許是連結錯了，也許是頁面搬家了。
+    </p>
+
+    <div class="err-ctas">
+      <a href="index.html" class="btn btn-render">
+        <svg width="16" height="16" viewBox="0 0 24 24" class="ico-stroke"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+        回到首頁
+      </a>
+      <a href="javascript:history.back()" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" class="ico-stroke"><polyline points="15 18 9 12 15 6"/></svg>
+        回上一頁
+      </a>
+    </div>
+
+    <div class="err-links">
+      <div class="lbl">或前往</div>
+      <a href="index.html#features">功能介紹</a>
+      <a href="index.html#voices">聲音庫</a>
+      <a href="index.html#pricing">方案</a>
+      <a href="login.html">登入</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const wave = document.getElementById('err-wave');
+  const heights = [];
+  for (let i = 0; i < 28; i++) {
+    const h = 20 + Math.sin(i * 0.45) * 18 + Math.sin(i * 0.2) * 10;
+    heights.push(Math.max(8, Math.min(50, Math.round(h))));
+  }
+  wave.innerHTML = heights.map((h, i) => `<span style="height: ${h}px; animation-delay: ${i * 0.06}s;"></span>`).join('');
+</script>
+
+</body>
+</html>
