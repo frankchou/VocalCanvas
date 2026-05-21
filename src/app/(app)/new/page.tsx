@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { doc, updateDoc, increment } from 'firebase/firestore';
 // rendering state 由 LangContext 統一管理，overlay 渲染在 AppShell .main 層
+import { mixAudioWithBgm } from '@/lib/audio-mixer';
 import Steps from '@/components/ui/Steps';
 import Slider from '@/components/ui/Slider';
 import GenderSelector from '@/components/ui/GenderSelector';
@@ -240,11 +241,13 @@ function VoiceSetupScreen({
 interface ScriptEditorScreenProps {
   state: AppState;
   setState: React.Dispatch<React.SetStateAction<AppState>>;
+  bgmTrack: string;
+  bgmVolume: number;
   onNext: () => void;
   onBack: () => void;
 }
 
-function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScreenProps): React.JSX.Element {
+function ScriptEditorScreen({ state, setState, bgmTrack, bgmVolume, onNext, onBack }: ScriptEditorScreenProps): React.JSX.Element {
   const { lang, setRendering } = useLang();
   const { user } = useAuth();
   const t = (zh: string, en: string): string => lang === 'zh' ? zh : en;
@@ -296,10 +299,10 @@ function ScriptEditorScreen({ state, setState, onNext, onBack }: ScriptEditorScr
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'TTS failed');
-      // Convert base64 to blob URL
+      // Convert base64 to blob, then mix with BGM if selected
       const bytes = Uint8Array.from(atob(data.audio), (c) => c.charCodeAt(0));
-      const blob = new Blob([bytes], { type: 'audio/mp3' });
-      const url = URL.createObjectURL(blob);
+      const speechBlob = new Blob([bytes], { type: 'audio/mp3' });
+      const url = await mixAudioWithBgm(speechBlob, bgmTrack, bgmVolume);
       // Track usage in Firestore
       if (user) {
         const estSeconds = Math.max(8, Math.round(totalChars * 0.15 + totalDelay));
@@ -776,6 +779,8 @@ export default function NewCanvasPage(): React.JSX.Element {
       <ScriptEditorScreen
         state={appState}
         setState={setAppState}
+        bgmTrack={bgmTrack}
+        bgmVolume={bgmVolume}
         onNext={goNext}
         onBack={goBack}
       />
